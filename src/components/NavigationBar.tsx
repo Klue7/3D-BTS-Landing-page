@@ -1,13 +1,16 @@
 import React from 'react';
 import { Search, ShoppingCart } from 'lucide-react';
-import { useVisualLab } from './VisualLabContext';
 
-export function NavigationBar() {
-  const { isCustomizeMode, setIsCustomizeMode } = useVisualLab();
+interface NavigationBarProps {
+  pathname: string;
+  navigate: (path: string) => void;
+}
 
-  const handleSetCustomizeMode = (mode: boolean) => {
-    setIsCustomizeMode(mode);
-    window.scrollTo(0, 0);
+export function NavigationBar({ pathname, navigate }: NavigationBarProps) {
+  const isCustomizeRoute = pathname === '/customize';
+
+  const handleNavigate = (path: string) => {
+    navigate(path);
   };
 
   return (
@@ -15,7 +18,7 @@ export function NavigationBar() {
       {/* Logo */}
       <div 
         className="flex items-center gap-3 cursor-pointer" 
-        onClick={() => handleSetCustomizeMode(false)}
+        onClick={() => handleNavigate('/')}
       >
         <svg viewBox="0 0 100 100" className="w-10 h-10" fill="none" strokeWidth="6" strokeLinecap="square">
           <g className="text-gray-400" stroke="currentColor">
@@ -38,11 +41,11 @@ export function NavigationBar() {
 
       {/* Links */}
       <div className="hidden md:flex gap-8 items-center">
-        <button onClick={() => handleSetCustomizeMode(false)} className={`text-sm font-medium transition-colors ${!isCustomizeMode ? 'text-[#22c55e]' : 'text-white/80 hover:text-[#22c55e]'}`}>Home</button>
-        <button onClick={() => handleSetCustomizeMode(true)} className={`text-sm font-medium transition-colors ${isCustomizeMode ? 'text-[#22c55e]' : 'text-white/80 hover:text-[#22c55e]'}`}>Customize</button>
-        <a href="#brick-tiles" className="text-white/80 hover:text-[#22c55e] transition-colors text-sm font-medium">Brick Tiles</a>
-        <a href="#building-materials" className="text-white/80 hover:text-[#22c55e] transition-colors text-sm font-medium">Building Materials</a>
-        <a href="#contact" className="text-white/80 hover:text-[#22c55e] transition-colors text-sm font-medium">Contact</a>
+        <button onClick={() => handleNavigate('/')} className={`text-sm font-medium transition-colors ${!isCustomizeRoute ? 'text-[#22c55e]' : 'text-white/80 hover:text-[#22c55e]'}`}>Home</button>
+        <button onClick={() => handleNavigate('/#technical-spotlight')} className="text-white/80 hover:text-[#22c55e] transition-colors text-sm font-medium">Technical</button>
+        <button onClick={() => handleNavigate('/#showcase')} className="text-white/80 hover:text-[#22c55e] transition-colors text-sm font-medium">Installation</button>
+        <button onClick={() => handleNavigate('/#related-products')} className="text-white/80 hover:text-[#22c55e] transition-colors text-sm font-medium">Top Sellers</button>
+        <button onClick={() => handleNavigate('/customize')} className={`text-sm font-medium transition-colors ${isCustomizeRoute ? 'text-[#22c55e]' : 'text-white/80 hover:text-[#22c55e]'}`}>Customize</button>
       </div>
 
       {/* Icons */}

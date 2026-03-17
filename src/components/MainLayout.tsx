@@ -6,11 +6,16 @@ import { TechnicalSection } from './TechnicalSection';
 import { ShowcaseSection } from './ShowcaseSection';
 import { VisualLabSection } from './VisualLabSection';
 import { ProductScene } from './ProductScene';
+import { RelatedProductsSection } from './RelatedProductsSection';
 import Lenis from '@studio-freight/lenis';
-import { useVisualLab } from './VisualLabContext';
 
-export function MainLayout() {
-  const { isCustomizeMode } = useVisualLab();
+interface MainLayoutProps {
+  pathname: string;
+  navigate: (path: string) => void;
+}
+
+export function MainLayout({ pathname, navigate }: MainLayoutProps) {
+  const isCustomizeRoute = pathname === '/customize';
 
   useEffect(() => {
     const lenis = new Lenis({
@@ -37,12 +42,12 @@ export function MainLayout() {
 
   return (
     <div id="main-container" className="bg-[#0a0a0a] text-white min-h-screen font-sans selection:bg-[#22c55e] selection:text-white">
-      <NavigationBar />
-      <ProductScene />
+      <NavigationBar pathname={pathname} navigate={navigate} />
+      <ProductScene isCustomizeRoute={isCustomizeRoute} />
       
-      {isCustomizeMode ? (
+      {isCustomizeRoute ? (
         <main className="relative z-10">
-          <VisualLabSection />
+          <VisualLabSection navigate={navigate} />
         </main>
       ) : (
         <main className="relative">
@@ -50,6 +55,7 @@ export function MainLayout() {
           <MaterialStorySection />
           <TechnicalSection />
           <ShowcaseSection />
+          <RelatedProductsSection onCustomizeClick={() => navigate('/customize')} />
         </main>
       )}
     </div>

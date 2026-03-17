@@ -5,14 +5,27 @@ import { Play, ChevronLeft, ChevronRight } from 'lucide-react';
 export function HeroSection() {
   return (
     <section id="hero" className="relative w-full h-screen flex items-center justify-center overflow-hidden bg-[#0a0a0a]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(34,197,94,0.08),transparent_42%),linear-gradient(180deg,rgba(0,0,0,0.22),rgba(0,0,0,0.72))]" />
+
       {/* Background Glow */}
-      <div className="absolute inset-0 flex items-center justify-center opacity-30">
-        <div className="w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] bg-[#5C3A21] rounded-full blur-[120px]"></div>
+      <div className="absolute inset-0 flex items-center justify-center opacity-45">
+        <div className="w-[66vw] h-[66vw] max-w-[900px] max-h-[900px] bg-[#5C3A21] rounded-full blur-[140px]"></div>
       </div>
 
       {/* Oversized Background Word */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none -translate-y-8 md:-translate-y-16">
-        <h1 className="text-[22vw] md:text-[24vw] font-['Anton'] tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white/10 to-white/[0.02] uppercase leading-none select-none">
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none -translate-y-10 md:-translate-y-16">
+        <h1
+          className="text-[24vw] md:text-[22vw] font-['Anton'] tracking-[-0.08em] text-transparent bg-clip-text bg-gradient-to-b from-white/30 via-white/12 to-white/[0.01] uppercase leading-none select-none"
+          style={{ filter: 'drop-shadow(0 0 28px rgba(255,255,255,0.08))' }}
+        >
+          {productData.productName}
+        </h1>
+      </div>
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none -translate-y-12 md:-translate-y-[4.6rem] opacity-75">
+        <h1
+          className="text-[24vw] md:text-[22vw] font-['Anton'] tracking-[-0.08em] uppercase leading-none text-transparent select-none"
+          style={{ WebkitTextStroke: '1px rgba(255,255,255,0.14)' }}
+        >
           {productData.productName}
         </h1>
       </div>
@@ -26,12 +39,18 @@ export function HeroSection() {
       </div>
 
       {/* Product Meta Bottom Left */}
-      <div className="absolute bottom-32 md:bottom-12 left-6 md:left-16 z-20">
-        <h2 className="text-3xl md:text-5xl font-bold text-[#b89b82] tracking-tight mb-1 md:mb-2">
+      <div className="absolute bottom-32 md:bottom-12 left-6 md:left-16 z-20 max-w-sm">
+        <p className="mb-3 text-[10px] md:text-xs font-bold tracking-[0.35em] uppercase text-[#22c55e]">
+          Brick Tile Shop Signature Finish
+        </p>
+        <h2 className="text-3xl md:text-5xl font-bold text-[#d5b38f] tracking-tight mb-1 md:mb-2">
           {productData.productName}
         </h2>
         <p className="text-[10px] md:text-xs text-white/60 uppercase tracking-widest flex items-center gap-2">
           CATEGORY: <span className="text-white">{productData.category}</span>
+        </p>
+        <p className="mt-4 text-sm md:text-base text-white/58 leading-relaxed">
+          A darker premium clay expression engineered to keep the material presence front and center across scroll.
         </p>
       </div>
 

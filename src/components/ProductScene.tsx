@@ -9,12 +9,16 @@ import { useVisualLab } from './VisualLabContext';
 
 gsap.registerPlugin(ScrollTrigger);
 
-function AnimatedBrick() {
+interface AnimatedBrickProps {
+  isCustomizeRoute: boolean;
+}
+
+function AnimatedBrick({ isCustomizeRoute }: AnimatedBrickProps) {
   const wrapperRef = useRef<THREE.Group>(null);
   const brickRef = useRef<THREE.Group>(null);
   const interactiveRef = useRef<THREE.Group>(null);
 
-  const { setCurrentSection, isCustomizeMode } = useVisualLab();
+  const { setCurrentSection } = useVisualLab();
   const currentSection = useRef('hero');
   const isTransitioning = useRef(false);
   const isDragging = useRef(false);
@@ -46,6 +50,7 @@ function AnimatedBrick() {
     const brick = brickRef.current;
 
     let mm = gsap.matchMedia();
+    let heroTrigger: ScrollTrigger | null = null;
 
     // Continuous slow rotation in Hero (applied to wrapper)
     heroRotationRef.current = gsap.to(wrapper.rotation, {
@@ -66,8 +71,8 @@ function AnimatedBrick() {
       paused: true
     });
 
-    if (!isCustomizeMode) {
-      ScrollTrigger.create({
+    if (!isCustomizeRoute) {
+      heroTrigger = ScrollTrigger.create({
         trigger: "#hero",
         start: "top bottom",
         end: "bottom top",
@@ -128,17 +133,24 @@ function AnimatedBrick() {
         ? { position: { x: 3, y: -1.5, z: 0 }, rotation: { x: 0.2, y: -0.4, z: 0 }, scale: { x: 0.6, y: 0.6, z: 0.6 } }
         : { position: { x: 0.8, y: -1.5, z: 0 }, rotation: { x: 0.2, y: -0.4, z: 0 }, scale: { x: 0.5, y: 0.5, z: 0.5 } };
 
-      if (isCustomizeMode) {
+      const relatedPreset = isDesktop
+        ? { position: { x: -2.2, y: -1.6, z: 1.2 }, rotation: { x: 0.18, y: 0.8, z: -0.08 }, scale: { x: 0.95, y: 0.95, z: 0.95 } }
+        : { position: { x: 0, y: -1.65, z: 0.8 }, rotation: { x: 0.2, y: 0.65, z: -0.06 }, scale: { x: 0.95, y: 0.95, z: 0.95 } };
+
+      if (isCustomizeRoute) {
         gsap.to(brick.position, { ...visualLabPreset.position, duration: 1.2, ease: "power3.inOut" });
         gsap.to(brick.rotation, { ...visualLabPreset.rotation, duration: 1.2, ease: "power3.inOut" });
         gsap.to(brick.scale, { ...visualLabPreset.scale, duration: 1.2, ease: "power3.inOut" });
         setCurrentSection('visual-lab');
+        currentSection.current = 'visual-lab';
         heroRotationRef.current?.pause();
         heroFloat.pause();
         return;
       }
 
       // Reset initial state for Hero (Centered premium reveal)
+      currentSection.current = 'hero';
+      setCurrentSection('hero');
       gsap.to(brick.position, { ...heroPreset.position, duration: 1, ease: "power2.out" });
       gsap.to(brick.rotation, { ...heroPreset.rotation, duration: 1, ease: "power2.out" });
       gsap.to(brick.scale, { ...heroPreset.scale, duration: 1, ease: "power2.out" });
@@ -184,14 +196,29 @@ function AnimatedBrick() {
       tl3.to(brick.position, { ...showcasePreset.position, ease: "power2.inOut", immediateRender: false }, 0);
       tl3.to(brick.rotation, { ...showcasePreset.rotation, ease: "power2.inOut", immediateRender: false }, 0);
       tl3.to(brick.scale, { ...showcasePreset.scale, ease: "power2.inOut", immediateRender: false }, 0);
+
+      // 4. Showcase -> Related Products
+      const tl4 = gsap.timeline({
+        scrollTrigger: {
+          trigger: "#related-products",
+          start: "top bottom",
+          end: "center center",
+          scrub: 1,
+          onUpdate: getUpdateHandler('showcase', 'related')
+        }
+      });
+      tl4.to(brick.position, { ...relatedPreset.position, ease: "power2.inOut", immediateRender: false }, 0);
+      tl4.to(brick.rotation, { ...relatedPreset.rotation, ease: "power2.inOut", immediateRender: false }, 0);
+      tl4.to(brick.scale, { ...relatedPreset.scale, ease: "power2.inOut", immediateRender: false }, 0);
     });
 
     return () => {
+      heroTrigger?.kill();
       mm.revert();
       heroRotationRef.current?.kill();
       heroFloat.kill();
     };
-  }, [isCustomizeMode, setCurrentSection]);
+  }, [isCustomizeRoute, setCurrentSection]);
 
   const handlePointerOver = (e: any) => {
     e.stopPropagation();
@@ -337,7 +364,11 @@ function LightingController() {
   );
 }
 
-export function ProductScene() {
+interface ProductSceneProps {
+  isCustomizeRoute: boolean;
+}
+
+export function ProductScene({ isCustomizeRoute }: ProductSceneProps) {
   const cameraRef = useRef<any>(null);
 
   return (
@@ -347,7 +378,7 @@ export function ProductScene() {
         
         <LightingController />
         
-        <AnimatedBrick />
+        <AnimatedBrick isCustomizeRoute={isCustomizeRoute} />
 
         <Environment preset="city" />
       </Canvas>

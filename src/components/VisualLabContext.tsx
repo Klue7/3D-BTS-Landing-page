@@ -9,8 +9,6 @@ interface VisualLabState {
   setActiveLighting: (id: string) => void;
   currentSection: string;
   setCurrentSection: (section: string) => void;
-  isCustomizeMode: boolean;
-  setIsCustomizeMode: (mode: boolean) => void;
 }
 
 const VisualLabContext = createContext<VisualLabState | undefined>(undefined);
@@ -20,15 +18,13 @@ export function VisualLabProvider({ children }: { children: React.ReactNode }) {
   const [activeLayout, setActiveLayout] = useState('stretcher');
   const [activeLighting, setActiveLighting] = useState('daylight');
   const [currentSection, setCurrentSection] = useState('hero');
-  const [isCustomizeMode, setIsCustomizeMode] = useState(false);
 
   return (
     <VisualLabContext.Provider value={{
       activeGrout, setActiveGrout,
       activeLayout, setActiveLayout,
       activeLighting, setActiveLighting,
-      currentSection, setCurrentSection,
-      isCustomizeMode, setIsCustomizeMode
+      currentSection, setCurrentSection
     }}>
       {children}
     </VisualLabContext.Provider>

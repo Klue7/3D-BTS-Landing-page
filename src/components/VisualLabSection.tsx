@@ -3,13 +3,16 @@ import { productData } from '../data/mockData';
 import { ArrowLeft } from 'lucide-react';
 import { useVisualLab } from './VisualLabContext';
 
-export function VisualLabSection() {
+interface VisualLabSectionProps {
+  navigate: (path: string) => void;
+}
+
+export function VisualLabSection({ navigate }: VisualLabSectionProps) {
   const { visualLab } = productData;
   const { 
     activeGrout, setActiveGrout, 
     activeLayout, setActiveLayout, 
-    activeLighting, setActiveLighting,
-    setIsCustomizeMode
+    activeLighting, setActiveLighting
   } = useVisualLab();
 
   const activeGroutColor = visualLab.groutColors.find(g => g.id === activeGrout)?.hex || '#e5e5e5';
@@ -32,16 +35,13 @@ export function VisualLabSection() {
         
         <button 
           className="flex items-center gap-2 text-white/50 hover:text-[#22c55e] text-xs tracking-widest uppercase mb-12 transition-colors w-fit"
-          onClick={() => {
-            setIsCustomizeMode(false);
-            window.scrollTo(0, 0);
-          }}
+          onClick={() => navigate('/')}
         >
           <ArrowLeft size={14} /> BACK TO SHOP
         </button>
 
         <h2 className="text-4xl font-['Anton'] text-white uppercase tracking-tighter leading-none mb-2">
-          DESIGN YOUR<br/>LEGACY
+          CUSTOMIZE<br/>ZAMBEZI
         </h2>
         <p className="text-sm text-white/50 mb-12">{visualLab.subtitle}</p>
 
@@ -128,8 +128,8 @@ export function VisualLabSection() {
         />
 
         <div className="absolute top-8 right-8 z-20 text-right pointer-events-none mix-blend-overlay opacity-50">
-          <h2 className="text-6xl md:text-8xl font-['Anton'] text-white uppercase tracking-tighter leading-none">CUSTOM</h2>
-          <p className="text-white text-xs tracking-[0.3em] uppercase">LAB EDITION</p>
+          <h2 className="text-6xl md:text-8xl font-['Anton'] text-white uppercase tracking-tighter leading-none">ZAMBEZI</h2>
+          <p className="text-white text-xs tracking-[0.3em] uppercase">CUSTOM STUDIO</p>
         </div>
         
         {/* CSS Wall Preview */}
