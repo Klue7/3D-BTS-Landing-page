@@ -6,6 +6,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { MainLayout } from './components/MainLayout';
 import { VisualLabProvider } from './components/VisualLabContext';
+import { ProductCatalogProvider } from './components/ProductCatalogContext';
 
 function normalizePath(pathname: string) {
   const normalized = pathname.replace(/\/+$/, '');
@@ -57,10 +58,16 @@ export default function App() {
   }, [scrollToHash]);
 
   const navigate = useCallback((next: string) => {
-    const nextUrl = new URL(next, window.location.origin);
+    const currentUrl = new URL(window.location.href);
+    const nextUrl = new URL(next, currentUrl);
+
+    if (!next.includes('?')) {
+      nextUrl.search = currentUrl.search;
+    }
+
     const nextPathname = normalizePath(nextUrl.pathname);
-    const destination = `${nextPathname}${nextUrl.hash}`;
-    const current = `${normalizePath(window.location.pathname)}${window.location.hash}`;
+    const destination = `${nextPathname}${nextUrl.search}${nextUrl.hash}`;
+    const current = `${normalizePath(window.location.pathname)}${window.location.search}${window.location.hash}`;
 
     if (destination !== current) {
       window.history.pushState({}, '', destination);
@@ -77,8 +84,10 @@ export default function App() {
   }, [scrollToHash]);
 
   return (
-    <VisualLabProvider>
-      <MainLayout pathname={pathname} navigate={navigate} />
-    </VisualLabProvider>
+    <ProductCatalogProvider>
+      <VisualLabProvider>
+        <MainLayout pathname={pathname} navigate={navigate} />
+      </VisualLabProvider>
+    </ProductCatalogProvider>
   );
 }

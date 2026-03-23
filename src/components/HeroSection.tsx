@@ -1,74 +1,114 @@
 import React from 'react';
-import { productData } from '../data/mockData';
-import { Play, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useProductCatalog } from './ProductCatalogContext';
+import { SectionCartCta } from './SectionCartCta';
 
 export function HeroSection() {
+  const { activeProduct, activeProductIndex, products, setActiveProductId, goToNextProduct, goToPreviousProduct } = useProductCatalog();
+  const productWord = activeProduct.heroWord?.label ?? activeProduct.productName.toUpperCase();
+  const backgroundWordStyle = {
+    fontSize:
+      activeProduct.heroWord?.fontSize ??
+      (productWord.length <= 6
+        ? 'min(31vw, 43vh)'
+        : productWord.length <= 8
+          ? 'min(27vw, 41vh)'
+          : 'min(23vw, 38vh)'),
+  };
+  const formatSummary = activeProduct.technical.specs.slice(0, 3).map((spec) => spec.value).join('  •  ');
+  const countLabel = `${String(activeProductIndex + 1).padStart(2, '0')} / ${String(products.length).padStart(2, '0')}`;
+
   return (
-    <section id="hero" className="relative w-full h-screen flex items-center justify-center overflow-hidden bg-[#0a0a0a]">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(34,197,94,0.08),transparent_42%),linear-gradient(180deg,rgba(0,0,0,0.22),rgba(0,0,0,0.72))]" />
+    <section id="hero" className="hero-shell pointer-events-none">
+      <div className="slide-frame">
+        <div className="slide-grid-overlay" />
 
-      {/* Background Glow */}
-      <div className="absolute inset-0 flex items-center justify-center opacity-45">
-        <div className="w-[66vw] h-[66vw] max-w-[900px] max-h-[900px] bg-[#5C3A21] rounded-full blur-[140px]"></div>
-      </div>
+        <div className="absolute inset-0 z-[10] flex items-center justify-center overflow-hidden pointer-events-none">
+          <h1
+            data-hero-word
+            className="hero-word-layer hero-word-fill select-none"
+            style={{
+              ...backgroundWordStyle,
+              transform: activeProduct.heroWord?.transform ?? 'translate(0.5%, -3.5%) scaleX(1.005)',
+            }}
+          >
+            {productWord}
+          </h1>
+        </div>
 
-      {/* Oversized Background Word */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none -translate-y-10 md:-translate-y-16">
-        <h1
-          className="text-[24vw] md:text-[22vw] font-['Anton'] tracking-[-0.08em] text-transparent bg-clip-text bg-gradient-to-b from-white/30 via-white/12 to-white/[0.01] uppercase leading-none select-none"
-          style={{ filter: 'drop-shadow(0 0 28px rgba(255,255,255,0.08))' }}
-        >
-          {productData.productName}
-        </h1>
-      </div>
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none -translate-y-12 md:-translate-y-[4.6rem] opacity-75">
-        <h1
-          className="text-[24vw] md:text-[22vw] font-['Anton'] tracking-[-0.08em] uppercase leading-none text-transparent select-none"
-          style={{ WebkitTextStroke: '1px rgba(255,255,255,0.14)' }}
-        >
-          {productData.productName}
-        </h1>
-      </div>
+        <div data-hero-motion="left" className="absolute bottom-16 left-6 z-20 max-w-[22rem] md:bottom-16 md:left-12 md:max-w-[24rem] xl:left-16">
+          <div className="absolute -inset-x-8 -inset-y-8 -z-10 pointer-events-none bg-[radial-gradient(circle_at_18%_34%,rgba(0,0,0,0.6)_0%,rgba(0,0,0,0.26)_44%,transparent_80%)] blur-2xl" />
+          <p className="mb-5 text-[10px] font-bold tracking-[0.34em] uppercase text-[#22c55e] md:text-xs">
+            Brick Tile Shop Signature Finish
+          </p>
+          <h2 className="text-[3.5rem] leading-[0.92] font-bold tracking-tight text-[#f4f1eb] md:text-[4rem]">
+            {activeProduct.productName}
+          </h2>
+          <p className="mt-3 text-[10px] uppercase tracking-[0.28em] text-white/72 md:text-xs">
+            {activeProduct.category}
+          </p>
+          <p className="mt-5 max-w-[21rem] text-sm leading-relaxed text-white/72 md:max-w-[22rem] md:text-base">
+            {activeProduct.heroDescription}
+          </p>
+          <div className="mt-7">
+            <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-white/34 md:text-[11px]">Selling Price</p>
+            <p className="mt-2 text-[clamp(2.9rem,5.2vw,4.4rem)] font-semibold leading-none tracking-tight text-[#22c55e]">
+              {activeProduct.pricing.amount}
+            </p>
+            <p className="mt-2 text-[10px] uppercase tracking-[0.26em] text-white/58 md:text-[11px]">
+              {activeProduct.pricing.detail}
+            </p>
+          </div>
+          <p className="mt-6 text-[10px] uppercase tracking-[0.32em] text-white/62 md:text-xs">
+            Format {formatSummary}
+          </p>
+        </div>
 
-      {/* Utility Trigger Top Left */}
-      <div className="absolute top-24 md:top-32 left-6 md:left-16 flex items-center gap-4 z-20 group cursor-pointer">
-        <button className="w-10 h-10 md:w-12 md:h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:border-[#22c55e] group-hover:bg-[#22c55e]/10 transition-all">
-          <Play size={14} className="text-white ml-1 md:w-4 md:h-4 group-hover:text-[#22c55e] transition-colors" />
-        </button>
-        <span className="text-[10px] md:text-xs text-white/60 uppercase tracking-widest leading-tight group-hover:text-white transition-colors">Promotion<br/>video</span>
-      </div>
+        <div data-hero-motion="up" className="pointer-events-auto absolute bottom-24 left-1/2 z-20 flex w-[calc(100%-3rem)] -translate-x-1/2 flex-col gap-3 md:bottom-16 md:w-auto md:flex-row md:items-center">
+          <button className="w-full rounded-full bg-[#22c55e] px-9 py-4 text-xs font-bold uppercase tracking-[0.32em] text-white shadow-[0_0_40px_rgba(34,197,94,0.34)] transition-all hover:scale-[1.02] hover:bg-[#16a34a] md:w-auto">
+            {activeProduct.primaryCta}
+          </button>
+          <SectionCartCta sectionLabel="Hero section" />
+        </div>
 
-      {/* Product Meta Bottom Left */}
-      <div className="absolute bottom-32 md:bottom-12 left-6 md:left-16 z-20 max-w-sm">
-        <p className="mb-3 text-[10px] md:text-xs font-bold tracking-[0.35em] uppercase text-[#22c55e]">
-          Brick Tile Shop Signature Finish
-        </p>
-        <h2 className="text-3xl md:text-5xl font-bold text-[#d5b38f] tracking-tight mb-1 md:mb-2">
-          {productData.productName}
-        </h2>
-        <p className="text-[10px] md:text-xs text-white/60 uppercase tracking-widest flex items-center gap-2">
-          CATEGORY: <span className="text-white">{productData.category}</span>
-        </p>
-        <p className="mt-4 text-sm md:text-base text-white/58 leading-relaxed">
-          A darker premium clay expression engineered to keep the material presence front and center across scroll.
-        </p>
-      </div>
+        <div data-hero-motion="right" className="pointer-events-auto absolute bottom-7 right-6 z-20 flex items-center gap-3 md:bottom-16 md:right-12 xl:right-16">
+          <div className="rounded-full border border-white/12 bg-black/45 px-4 py-2 backdrop-blur-md">
+            <p className="text-[9px] uppercase tracking-[0.28em] text-white/36">{countLabel}</p>
+            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-white/72 md:text-[11px]">
+              {activeProduct.productName}
+            </p>
+          </div>
+          <div className="flex items-center gap-2 rounded-full border border-white/12 bg-black/45 px-2 py-2 backdrop-blur-md">
+            <div className="flex items-center gap-2 px-1">
+              {products.map((product) => {
+                const isActive = product.id === activeProduct.id;
 
-      {/* Primary CTA Bottom Center (Mobile: Bottom Left below Meta) */}
-      <div className="absolute bottom-12 md:bottom-12 left-6 md:left-1/2 md:-translate-x-1/2 z-20 w-[calc(100%-3rem)] md:w-auto">
-        <button className="w-full md:w-auto bg-[#22c55e] hover:bg-[#16a34a] text-white px-8 py-4 text-xs md:text-sm font-bold tracking-widest uppercase transition-all hover:scale-105 shadow-[0_0_30px_rgba(34,197,94,0.3)]">
-          {productData.primaryCta}
-        </button>
-      </div>
-
-      {/* Circular Controls Bottom Right */}
-      <div className="hidden md:flex absolute bottom-12 right-16 gap-4 z-20">
-        <button className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:border-[#22c55e] hover:bg-[#22c55e]/10 transition-all group">
-          <ChevronLeft size={20} className="text-white group-hover:text-[#22c55e] transition-colors" />
-        </button>
-        <button className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:border-[#22c55e] hover:bg-[#22c55e]/10 transition-all group">
-          <ChevronRight size={20} className="text-white group-hover:text-[#22c55e] transition-colors" />
-        </button>
+                return (
+                  <button
+                    key={product.id}
+                    onClick={() => setActiveProductId(product.id)}
+                    aria-label={`Show ${product.productName} product`}
+                    className={`h-2.5 w-2.5 rounded-full transition-all ${isActive ? 'scale-125 bg-[#22c55e]' : 'bg-white/26 hover:bg-white/55'}`}
+                  />
+                );
+              })}
+            </div>
+          <button
+            onClick={goToPreviousProduct}
+            aria-label="Show previous product"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/16 text-white transition-all hover:border-[#22c55e] hover:bg-[#22c55e]/10 md:h-12 md:w-12"
+          >
+            <ChevronLeft size={18} />
+          </button>
+          <button
+            onClick={goToNextProduct}
+            aria-label="Show next product"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/16 text-white transition-all hover:border-[#22c55e] hover:bg-[#22c55e]/10 md:h-12 md:w-12"
+          >
+            <ChevronRight size={18} />
+          </button>
+          </div>
+        </div>
       </div>
     </section>
   );

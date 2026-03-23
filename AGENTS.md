@@ -40,3 +40,23 @@ Do not rebuild from scratch.
 - Use the project’s existing package manager and scripts.
 - Run the local build after changes and fix any build/runtime errors.
 - Summarize changed files and any follow-up items.
+
+## Subagent policy
+
+Use subagents only when explicitly requested or when a task benefits from bounded parallel work.
+
+Preferred pattern:
+- one implementation agent
+- one or two read-only review agents
+- optional performance reviewer
+
+Recommended agents:
+- visual_director for visual/reference review
+- r3f_engineer for 3D/R3F/GSAP implementation
+- frontend_architect for React/TS structure
+- perf_guardian for regression/performance checks
+- brand_copy_editor for marketing/product copy
+- customer_journey_editor for conversion-flow text and CTA review
+
+Avoid multiple write-heavy agents editing the same files at once.
+Return summaries, not raw logs.

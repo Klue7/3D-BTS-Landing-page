@@ -1,14 +1,16 @@
 import React from 'react';
-import { productData } from '../data/mockData';
+import { visualLabData } from '../data/mockData';
 import { ArrowLeft } from 'lucide-react';
 import { useVisualLab } from './VisualLabContext';
+import { useProductCatalog } from './ProductCatalogContext';
 
 interface VisualLabSectionProps {
   navigate: (path: string) => void;
 }
 
 export function VisualLabSection({ navigate }: VisualLabSectionProps) {
-  const { visualLab } = productData;
+  const visualLab = visualLabData;
+  const { activeProduct, activeProductIndex, products, setActiveProductId } = useProductCatalog();
   const { 
     activeGrout, setActiveGrout, 
     activeLayout, setActiveLayout, 
@@ -41,9 +43,43 @@ export function VisualLabSection({ navigate }: VisualLabSectionProps) {
         </button>
 
         <h2 className="text-4xl font-['Anton'] text-white uppercase tracking-tighter leading-none mb-2">
-          CUSTOMIZE<br/>ZAMBEZI
+          CUSTOMIZE<br/>{activeProduct.productName.toUpperCase()}
         </h2>
         <p className="text-sm text-white/50 mb-12">{visualLab.subtitle}</p>
+
+        <div className="mb-10">
+          <h3 className="text-[10px] text-white/40 tracking-widest uppercase mb-4">PRODUCT FINISH</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {products.map((product, index) => {
+              const isActive = product.id === activeProduct.id;
+
+              return (
+                <button
+                  key={product.id}
+                  onClick={() => setActiveProductId(product.id)}
+                  className={`flex items-center justify-between border px-4 py-4 text-left transition-all ${isActive ? 'border-[#22c55e] bg-[#22c55e]/10 text-white' : 'border-white/10 bg-transparent text-white/56 hover:border-[#22c55e]/55 hover:text-white'}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span
+                      className="h-3 w-3 rounded-full"
+                      style={{ backgroundColor: product.scenePalette.highlight }}
+                    />
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.22em]">{product.productName}</p>
+                      <p className="mt-1 text-[10px] uppercase tracking-[0.22em] text-white/40">{product.category}</p>
+                    </div>
+                  </div>
+                  <span className={`text-[10px] font-bold tracking-[0.28em] ${isActive ? 'text-[#22c55e]' : 'text-white/30'}`}>
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-3 text-[10px] uppercase tracking-[0.24em] text-white/30">
+            Active finish {String(activeProductIndex + 1).padStart(2, '0')} of {String(products.length).padStart(2, '0')}
+          </p>
+        </div>
 
         {/* Grout Color */}
         <div className="mb-10">
@@ -128,7 +164,7 @@ export function VisualLabSection({ navigate }: VisualLabSectionProps) {
         />
 
         <div className="absolute top-8 right-8 z-20 text-right pointer-events-none mix-blend-overlay opacity-50">
-          <h2 className="text-6xl md:text-8xl font-['Anton'] text-white uppercase tracking-tighter leading-none">ZAMBEZI</h2>
+          <h2 className="text-6xl md:text-8xl font-['Anton'] text-white uppercase tracking-tighter leading-none">{activeProduct.productName.toUpperCase()}</h2>
           <p className="text-white text-xs tracking-[0.3em] uppercase">CUSTOM STUDIO</p>
         </div>
         
@@ -149,9 +185,10 @@ export function VisualLabSection({ navigate }: VisualLabSectionProps) {
                 const pseudoRandom2 = (Math.cos(seed) + 1) / 2;
                 
                 // Earthy clay/charcoal palette variations
-                const lightness = 18 + (pseudoRandom * 12);
-                const hue = 20 + (pseudoRandom2 * 6);
-                const saturation = 35 + (pseudoRandom * 10);
+                const { visualLabPalette } = activeProduct;
+                const lightness = visualLabPalette.lightnessBase + (pseudoRandom * visualLabPalette.lightnessVariance);
+                const hue = visualLabPalette.hueBase + (pseudoRandom2 * visualLabPalette.hueVariance);
+                const saturation = visualLabPalette.saturationBase + (pseudoRandom * visualLabPalette.saturationVariance);
                 
                 return (
                   <div 
