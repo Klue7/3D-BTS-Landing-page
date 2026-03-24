@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import type { EntryCategoryDeck, EntryCategoryItem, ProductVariant } from '../data/mockData';
+import { productCatalog, type EntryCategoryDeck, type EntryCategoryItem, type ProductVariant } from '../data/mockData';
 import { SelectionBoardMiniTile } from './SelectionBoardMiniTile';
 import { SectionProductDetailPanel } from './SectionProductDetailPanel';
+import { preloadImageAsset } from '../utils/textureGenerator';
 
 interface CategoryMoodBoardSectionProps {
   activeCategory: EntryCategoryDeck;
@@ -19,9 +20,10 @@ export function CategoryMoodBoardSection({
   navigate,
 }: CategoryMoodBoardSectionProps) {
   const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
+  const [isDetailMediaReady, setIsDetailMediaReady] = useState(false);
   const isDetailOpen = expandedItemId !== null;
   const sectionMinHeight = isDetailOpen
-    ? 'min-h-[40rem] md:min-h-[41rem] lg:min-h-[41rem]'
+    ? 'min-h-[41.5rem] md:min-h-[43rem] lg:min-h-[43.5rem]'
     : 'min-h-[42rem] md:min-h-[43rem] lg:min-h-[42rem]';
 
   useEffect(() => {
@@ -40,7 +42,19 @@ export function CategoryMoodBoardSection({
     onSelectItem(item);
 
     if (item.linkedProductId) {
-      setExpandedItemId(item.id);
+      const linkedProduct = productCatalog.find((product) => product.id === item.linkedProductId);
+      const nextPreviewImage =
+        linkedProduct?.finishAssets.galleryImages?.[0] ??
+        linkedProduct?.installationShowcase.secondaryImage ??
+        linkedProduct?.finishAssets.backdropImage ??
+        item.image;
+
+      setIsDetailMediaReady(false);
+      preloadImageAsset(nextPreviewImage)
+        .catch(() => null)
+        .finally(() => {
+          setExpandedItemId(item.id);
+        });
     }
   };
 
@@ -90,7 +104,9 @@ export function CategoryMoodBoardSection({
           <div
             className={`absolute inset-0 transition-all duration-500 ${
               isDetailOpen
-                ? 'pointer-events-none translate-y-[-0.35rem] opacity-0 blur-[4px]'
+                ? isDetailMediaReady
+                  ? 'pointer-events-none translate-y-[-0.2rem] opacity-0 blur-[3px]'
+                  : 'pointer-events-none translate-y-0 opacity-100 blur-0'
                 : 'pointer-events-auto translate-y-0 opacity-100 blur-0'
             }`}
           >
@@ -171,9 +187,11 @@ export function CategoryMoodBoardSection({
           </div>
 
           <div
-            className={`absolute inset-x-0 top-0 flex items-start justify-center pb-14 md:pb-16 transition-all duration-500 ${
+            className={`absolute inset-x-0 top-0 flex items-start justify-center px-2 pb-16 md:px-0 md:pb-20 transition-all duration-500 ${
               isDetailOpen
-                ? 'pointer-events-auto translate-y-0 opacity-100 blur-0'
+                ? isDetailMediaReady
+                  ? 'pointer-events-auto translate-y-0 opacity-100 blur-0'
+                  : 'pointer-events-none translate-y-2 opacity-0 blur-[5px]'
                 : 'pointer-events-none translate-y-5 opacity-0 blur-[8px]'
             }`}
           >
@@ -182,6 +200,7 @@ export function CategoryMoodBoardSection({
                 product={activeProduct}
                 onBack={() => setExpandedItemId(null)}
                 navigate={navigate}
+                onStageReadyChange={setIsDetailMediaReady}
               />
             ) : null}
           </div>

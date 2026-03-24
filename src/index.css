@@ -133,6 +133,21 @@ body {
   overflow: hidden;
   border-radius: var(--stage-radius);
   pointer-events: auto;
+  opacity: 0;
+  filter: blur(10px);
+  will-change: opacity, filter;
+  transition:
+    opacity 0.46s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.62s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.homepage-canvas--pending {
+  pointer-events: none;
+}
+
+.homepage-canvas--ready {
+  opacity: 1;
+  filter: blur(0px);
 }
 
 .hero-shell,

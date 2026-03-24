@@ -10,6 +10,7 @@ interface SectionProductDetailPanelProps {
   product: ProductVariant;
   onBack: () => void;
   navigate: (path: string) => void;
+  onStageReadyChange?: (ready: boolean) => void;
 }
 
 interface QuoteFormState {
@@ -51,6 +52,7 @@ export function SectionProductDetailPanel({
   product,
   onBack,
   navigate,
+  onStageReadyChange,
 }: SectionProductDetailPanelProps) {
   const { addProductToCart } = useProductCatalog();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -203,6 +205,10 @@ export function SectionProductDetailPanel({
       cancelled = true;
     };
   }, [activeImage]);
+
+  useEffect(() => {
+    onStageReadyChange?.(isActiveImageReady);
+  }, [isActiveImageReady, onStageReadyChange]);
 
   const moduleLength = getSpecValue(product, 'LENGTH');
   const moduleHeight = getSpecValue(product, 'HEIGHT');
@@ -467,13 +473,13 @@ export function SectionProductDetailPanel({
   };
 
   return (
-    <div className="pointer-events-auto mx-auto w-full max-w-[62rem] rounded-[1.6rem] border border-white/10 bg-[linear-gradient(180deg,rgba(9,9,9,0.975),rgba(4,4,4,0.995))] p-[0.95rem] shadow-[0_28px_64px_rgba(0,0,0,0.36)] backdrop-blur-xl md:p-[1rem]">
-      <div className="relative min-h-[29rem]">
+    <div className="pointer-events-auto mx-auto w-full max-w-[60rem] rounded-[1.45rem] border border-white/10 bg-[linear-gradient(180deg,rgba(9,9,9,0.975),rgba(4,4,4,0.995))] p-[0.92rem] shadow-[0_24px_54px_rgba(0,0,0,0.34)] backdrop-blur-xl md:p-[0.95rem]">
+      <div className="relative min-h-[27.6rem]">
         <div
           ref={detailStageRef}
-          className="absolute inset-0 grid items-start gap-3.5 lg:grid-cols-[0.92fr_0.86fr]"
+          className="absolute inset-0 grid items-start gap-3 lg:grid-cols-[0.88fr_0.84fr]"
         >
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             <div className="flex items-center justify-between gap-4">
               <button
                 type="button"
@@ -489,7 +495,7 @@ export function SectionProductDetailPanel({
               </span>
             </div>
 
-            <div className="grid gap-3 lg:grid-cols-[3.55rem_1fr]">
+            <div className="grid gap-2.5 lg:grid-cols-[3.2rem_1fr]">
               <div className="order-2 flex gap-2 overflow-x-auto pb-1 lg:order-1 lg:flex-col lg:overflow-visible">
                 {galleryImages.map((image, index) => {
                   const isActive = index === activeImageIndex;
@@ -499,7 +505,7 @@ export function SectionProductDetailPanel({
                       key={`${product.id}-gallery-${index}`}
                       type="button"
                       onClick={() => setActiveImageIndex(index)}
-                      className={`group relative h-[3.55rem] w-[3.55rem] shrink-0 overflow-hidden rounded-[0.85rem] border transition-all duration-300 ${
+                      className={`group relative h-[3.2rem] w-[3.2rem] shrink-0 overflow-hidden rounded-[0.8rem] border transition-all duration-300 ${
                         isActive
                           ? 'border-[#22c55e]/45 bg-[#22c55e]/[0.05]'
                           : 'border-white/10 bg-white/[0.03] hover:border-white/20'
@@ -516,8 +522,8 @@ export function SectionProductDetailPanel({
                 })}
               </div>
 
-              <div className="order-1 overflow-hidden rounded-[1.25rem] border border-white/10 bg-[#090909] lg:order-2">
-                <div className="relative aspect-[1.42]">
+              <div className="order-1 overflow-hidden rounded-[1.15rem] border border-white/10 bg-[#090909] lg:order-2">
+                <div className="relative aspect-[1.3]">
                   <div
                     className={`pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),rgba(255,255,255,0.01)_28%,rgba(0,0,0,0.18)_80%),linear-gradient(180deg,rgba(14,14,14,0.92),rgba(6,6,6,0.98))] transition-opacity duration-300 ${
                       isActiveImageReady ? 'opacity-0' : 'opacity-100'
@@ -530,13 +536,13 @@ export function SectionProductDetailPanel({
                       isActiveImageReady ? 'scale-100 opacity-100' : 'scale-[1.015] opacity-0'
                     }`}
                   />
-                  <div className="absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.84))] p-2.5">
+                  <div className="absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.84))] p-2.25">
                     <div className="flex items-end justify-between gap-4">
                       <div>
                         <p className="text-[0.62rem] uppercase tracking-[0.3em] text-white/45">
                           Brick Tile Shop / Cladding
                         </p>
-                        <p className="mt-1 text-[0.86rem] font-semibold text-white md:text-[0.94rem]">{product.productName}</p>
+                        <p className="mt-1 text-[0.82rem] font-semibold text-white md:text-[0.9rem]">{product.productName}</p>
                       </div>
                       <div className="rounded-full border border-white/12 bg-black/40 px-3 py-1.5 text-[0.54rem] uppercase tracking-[0.24em] text-white/62">
                         {String(activeImageIndex + 1).padStart(2, '0')} / {String(galleryImages.length).padStart(2, '0')}
@@ -547,34 +553,34 @@ export function SectionProductDetailPanel({
               </div>
             </div>
 
-            <div className="grid gap-x-4 gap-y-1.5 sm:grid-cols-2">
+            <div className="grid gap-x-4 gap-y-1 sm:grid-cols-2">
               {specRows.map((spec) => (
-                <div key={spec.label} className="border-b border-white/8 pb-1.5">
+                <div key={spec.label} className="border-b border-white/8 pb-1.25">
                   <p className="text-[0.56rem] uppercase tracking-[0.24em] text-white/34">{spec.label}</p>
-                  <p className="mt-1 text-[0.74rem] font-medium leading-5 text-white/72">{spec.value}</p>
+                  <p className="mt-1 text-[0.71rem] font-medium leading-5 text-white/68">{spec.value}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="space-y-3">
-            <div className="rounded-[1.25rem] border border-white/10 bg-white/[0.02] p-[1.05rem]">
+          <div className="space-y-2.5">
+            <div className="rounded-[1.15rem] border border-white/10 bg-white/[0.02] p-[0.98rem]">
               <p className="text-[0.62rem] uppercase tracking-[0.26em] text-white/38">
                 Brick Tile Shop / Cladding Tiles / {product.productName}
               </p>
-              <h3 className="mt-2 text-[clamp(1.45rem,2.4vw,2.02rem)] font-semibold leading-[0.96] tracking-[-0.04em] text-white">
+              <h3 className="mt-2 text-[clamp(1.32rem,2.2vw,1.88rem)] font-semibold leading-[0.96] tracking-[-0.04em] text-white">
                 {product.productName}
               </h3>
               <div className="mt-2 flex items-end gap-3">
-                <span className="text-[clamp(1.45rem,2.4vw,2.05rem)] font-semibold tracking-[-0.05em] text-[#22c55e]">
+                <span className="text-[clamp(1.36rem,2.2vw,1.92rem)] font-semibold tracking-[-0.05em] text-[#22c55e]">
                   {product.pricing.amount}
                 </span>
                 <span className="pb-1 text-[0.62rem] uppercase tracking-[0.22em] text-white/42">incl VAT</span>
               </div>
-              <p className="mt-2 max-w-[22rem] text-[0.72rem] leading-5 text-white/38">
+              <p className="mt-2 max-w-[21rem] text-[0.69rem] leading-5 text-white/34">
                 {conciseDescription}
               </p>
-              <div className="mt-2.5 flex flex-wrap gap-2">
+              <div className="mt-2 flex flex-wrap gap-2">
                 <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[0.58rem] uppercase tracking-[0.2em] text-white/58">
                   {product.category}
                 </span>
@@ -584,15 +590,15 @@ export function SectionProductDetailPanel({
               </div>
             </div>
 
-            <div className="rounded-[1.25rem] border border-white/10 bg-[#060606]/88 p-[1.05rem]">
+            <div className="rounded-[1.15rem] border border-white/10 bg-[#060606]/88 p-[0.98rem]">
               <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                 <div>
                   <p className="text-[0.66rem] uppercase tracking-[0.28em] text-[#22c55e]">Quick order / quote</p>
-                  <h4 className="mt-1.5 text-[0.98rem] font-semibold tracking-[-0.03em] text-white">
+                  <h4 className="mt-1.5 text-[0.94rem] font-semibold tracking-[-0.03em] text-white">
                     Lock quantity, then quote.
                   </h4>
-                  <p className="mt-1 max-w-[14.5rem] text-[0.68rem] leading-5 text-white/32">
-                    Add the finish, then the guided form opens here.
+                  <p className="mt-1 max-w-[13.5rem] text-[0.64rem] leading-5 text-white/26">
+                    Add the finish, then open the guided draft.
                   </p>
                 </div>
 
@@ -620,23 +626,23 @@ export function SectionProductDetailPanel({
                 </div>
               </div>
 
-              <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 border-y border-white/8 py-2.5">
+              <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-2 border-y border-white/8 py-2">
                 <div>
                   <p className="text-[0.56rem] uppercase tracking-[0.24em] text-white/34">Unit price</p>
-                  <p className="mt-1 text-[0.9rem] font-semibold text-white">{product.pricing.amount}</p>
+                  <p className="mt-1 text-[0.86rem] font-semibold text-white">{product.pricing.amount}</p>
                 </div>
                 <div className="hidden h-8 w-px bg-white/8 sm:block" />
                 <div>
                   <p className="text-[0.56rem] uppercase tracking-[0.24em] text-white/34">Estimated total</p>
-                  <p className="mt-1 text-[0.9rem] font-semibold text-white">{totalPrice ?? product.pricing.amount}</p>
+                  <p className="mt-1 text-[0.86rem] font-semibold text-white">{totalPrice ?? product.pricing.amount}</p>
                 </div>
               </div>
 
-              <div className="mt-3 flex flex-col gap-3 lg:flex-row">
+              <div className="mt-2.5 flex flex-col gap-3 lg:flex-row">
                 <button
                   type="button"
                   onClick={handleStartQuoteFlow}
-                  className="inline-flex min-h-[2.7rem] w-full items-center justify-center gap-3 rounded-full border border-[#22c55e]/28 bg-black/40 px-5 text-[0.6rem] font-semibold uppercase tracking-[0.22em] text-white transition-all duration-300 hover:border-[#22c55e]/58 hover:bg-[#22c55e]/10"
+                  className="inline-flex min-h-[2.55rem] w-full items-center justify-center gap-3 rounded-full border border-[#22c55e]/28 bg-black/40 px-5 text-[0.58rem] font-semibold uppercase tracking-[0.22em] text-white transition-all duration-300 hover:border-[#22c55e]/58 hover:bg-[#22c55e]/10"
                 >
                   <ShoppingCart size={15} strokeWidth={2.1} />
                   <span>Add To Cart & Start Quote</span>

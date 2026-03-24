@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Environment, PerspectiveCamera } from '@react-three/drei';
 import * as THREE from 'three';
@@ -7,7 +7,13 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useVisualLab } from './VisualLabContext';
 import { useProductCatalog } from './ProductCatalogContext';
-import { createBrandBrickFaceDataUrl, createBrandTileFaceDataUrl, getBrickTextureSet, preloadImageAsset } from '../utils/textureGenerator';
+import {
+  createBrandBrickFaceDataUrl,
+  createBrandTileFaceDataUrl,
+  createImageCropDataUrl,
+  getBrickTextureSet,
+  preloadImageAsset,
+} from '../utils/textureGenerator';
 import { productCatalog, type BrickPalette } from '../data/mockData';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -23,6 +29,7 @@ interface StagePreset {
 interface AnimatedBrickProps {
   isCustomizeRoute: boolean;
   introObjectMode: 'tile' | 'brick';
+  onIntroPrepared?: () => void;
 }
 
 const HOMEPAGE_SECTIONS: HomepageSection[] = ['intro', 'moodboard', 'hero', 'material', 'detail', 'technical', 'showcase', 'footer'];
@@ -242,7 +249,7 @@ function SceneCameraController({
   return null;
 }
 
-function AnimatedBrick({ isCustomizeRoute, introObjectMode }: AnimatedBrickProps) {
+function AnimatedBrick({ isCustomizeRoute, introObjectMode, onIntroPrepared }: AnimatedBrickProps) {
   const wrapperRef = useRef<THREE.Group>(null);
   const brickRef = useRef<THREE.Group>(null);
   const tileIdleRef = useRef<THREE.Group>(null);
@@ -262,6 +269,7 @@ function AnimatedBrick({ isCustomizeRoute, introObjectMode }: AnimatedBrickProps
 
   const { setCurrentSection } = useVisualLab();
   const { activeProduct } = useProductCatalog();
+  const [resolvedProductFaceImage, setResolvedProductFaceImage] = useState(activeProduct.finishAssets.faceImage ?? '');
   const brandObjectFaceImage = useMemo(
     () => (
       introObjectMode === 'brick'
@@ -295,8 +303,50 @@ function AnimatedBrick({ isCustomizeRoute, introObjectMode }: AnimatedBrickProps
   const productSpinRef = useRef<gsap.core.Timeline | null>(null);
   const introMorphRef = useRef<gsap.core.Timeline | null>(null);
   const previousIntroModeRef = useRef(introObjectMode);
+  const introPreparedRef = useRef(false);
+  const introPreparedFrameRef = useRef<number | null>(null);
   const isTopSection = (section: HomepageSection | 'visual-lab') => section === 'intro' || section === 'moodboard';
   const shouldUseBrandObject = (section: HomepageSection | 'visual-lab') => section === 'intro';
+
+  useEffect(() => {
+    let cancelled = false;
+    const faceImage = activeProduct.finishAssets.faceImage;
+    const faceImageCrop = activeProduct.finishAssets.faceImageCrop;
+    const faceImageRotateDegrees = activeProduct.finishAssets.faceImageRotateDegrees;
+
+    if (!faceImage) {
+      setResolvedProductFaceImage('');
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    if (!faceImageCrop && !faceImageRotateDegrees) {
+      setResolvedProductFaceImage(faceImage);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    createImageCropDataUrl(faceImage, faceImageCrop, {
+      width: 1536,
+      height: 512,
+      quality: 0.92,
+      rotateDegrees: faceImageRotateDegrees,
+    }).then((nextFaceImage) => {
+      if (cancelled) return;
+      setResolvedProductFaceImage(nextFaceImage || faceImage);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    activeProduct.id,
+    activeProduct.finishAssets.faceImage,
+    activeProduct.finishAssets.faceImageCrop,
+    activeProduct.finishAssets.faceImageRotateDegrees,
+  ]);
 
   useFrame((_, delta) => {
     if (!interactiveRef.current) return;
@@ -375,6 +425,23 @@ function AnimatedBrick({ isCustomizeRoute, introObjectMode }: AnimatedBrickProps
         preloadImageAsset(product.finishAssets.backdropImage);
         preloadImageAsset(product.finishAssets.decorRevealPresentation?.installedRoomImage);
         product.finishAssets.galleryImages?.forEach((image) => preloadImageAsset(image));
+        void (async () => {
+          const faceImage = product.finishAssets.faceImage;
+          if (!faceImage) return;
+
+          const resolvedFaceImage =
+            product.finishAssets.faceImageCrop || product.finishAssets.faceImageRotateDegrees
+              ? await createImageCropDataUrl(faceImage, product.finishAssets.faceImageCrop, {
+                  width: 1536,
+                  height: 512,
+                  quality: 0.92,
+                  rotateDegrees: product.finishAssets.faceImageRotateDegrees,
+                })
+              : faceImage;
+
+          if (isCancelled || !resolvedFaceImage) return;
+          preloadImageAsset(resolvedFaceImage);
+        })();
       });
     };
 
@@ -385,8 +452,23 @@ function AnimatedBrick({ isCustomizeRoute, introObjectMode }: AnimatedBrickProps
       const runWarmup = () => {
         if (isCancelled) return;
 
-        getBrickTextureSet(product.scenePalette, product.finishAssets.faceImage);
-        warmTextureSet(index + 1);
+        void (async () => {
+          const faceImage = product.finishAssets.faceImage;
+          const resolvedFaceImage =
+            faceImage && (product.finishAssets.faceImageCrop || product.finishAssets.faceImageRotateDegrees)
+              ? await createImageCropDataUrl(faceImage, product.finishAssets.faceImageCrop, {
+                  width: 1536,
+                  height: 512,
+                  quality: 0.92,
+                  rotateDegrees: product.finishAssets.faceImageRotateDegrees,
+                })
+              : faceImage;
+
+          if (!isCancelled) {
+            getBrickTextureSet(product.scenePalette, resolvedFaceImage);
+            warmTextureSet(index + 1);
+          }
+        })();
       };
 
       if (idleWindow.requestIdleCallback) {
@@ -1066,6 +1148,16 @@ function AnimatedBrick({ isCustomizeRoute, introObjectMode }: AnimatedBrickProps
         applyPreset(presets.intro);
         setTileDisplayMode('brand', true);
         setSectionState('intro');
+        if (!introPreparedRef.current) {
+          introPreparedFrameRef.current = requestAnimationFrame(() => {
+            introPreparedFrameRef.current = requestAnimationFrame(() => {
+              if (!introPreparedRef.current) {
+                introPreparedRef.current = true;
+                onIntroPrepared?.();
+              }
+            });
+          });
+        }
 
         masterTimeline = gsap.timeline({ paused: true });
 
@@ -1134,8 +1226,11 @@ function AnimatedBrick({ isCustomizeRoute, introObjectMode }: AnimatedBrickProps
       heroFloatRef.current?.kill();
       showcaseFloatRef.current?.kill();
       showcaseRotateRef.current?.kill();
+      if (introPreparedFrameRef.current !== null) {
+        cancelAnimationFrame(introPreparedFrameRef.current);
+      }
     };
-  }, [introObjectMode, isCustomizeRoute, setCurrentSection]);
+  }, [introObjectMode, isCustomizeRoute, onIntroPrepared, setCurrentSection]);
 
   const canInteract = () => {
     return !isTransitioning.current && INTERACTIVE_SECTIONS.has(currentSection.current as HomepageSection);
@@ -1261,7 +1356,7 @@ function AnimatedBrick({ isCustomizeRoute, introObjectMode }: AnimatedBrickProps
                 position={[0, productObjectSpec.yOffset, 0.004]}
                 scale={productObjectSpec.scale}
                 palette={activeProduct.scenePalette}
-                faceImage={activeProduct.finishAssets.faceImage}
+                faceImage={resolvedProductFaceImage}
                 dimensions={productObjectSpec.dimensions}
                 radius={productObjectSpec.radius}
                 faceMaterialRef={tileFaceMaterialRef}
@@ -1407,14 +1502,73 @@ interface ProductSceneProps {
 
 export function ProductScene({ isCustomizeRoute, introObjectMode }: ProductSceneProps) {
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
+  const [isCanvasCreated, setIsCanvasCreated] = useState(false);
+  const [isIntroAssetReady, setIsIntroAssetReady] = useState(false);
+  const [isIntroPrepared, setIsIntroPrepared] = useState(false);
+  const [isCanvasVisible, setIsCanvasVisible] = useState(isCustomizeRoute);
+  const introBrandFaceImage = useMemo(
+    () => (
+      introObjectMode === 'brick'
+        ? createBrandBrickFaceDataUrl(BRAND_BRICK_PALETTE)
+        : createBrandTileFaceDataUrl()
+    ),
+    [introObjectMode]
+  );
+  const introBrandPalette = introObjectMode === 'brick' ? BRAND_BRICK_PALETTE : BRAND_TILE_PALETTE;
+
+  useEffect(() => {
+    if (isCustomizeRoute) {
+      setIsCanvasVisible(true);
+      return;
+    }
+
+    let isCancelled = false;
+    setIsIntroAssetReady(false);
+
+    preloadImageAsset(introBrandFaceImage)
+      .catch(() => null)
+      .then(() => {
+        if (isCancelled) return;
+        getBrickTextureSet(introBrandPalette, introBrandFaceImage);
+        setIsIntroAssetReady(true);
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [introBrandFaceImage, introBrandPalette, isCustomizeRoute]);
+
+  useEffect(() => {
+    if (isCustomizeRoute) return;
+    if (isCanvasVisible) return;
+    if (!isCanvasCreated || !isIntroPrepared || !isIntroAssetReady) return;
+
+    const timeoutHandle = window.setTimeout(() => {
+      setIsCanvasVisible(true);
+    }, 36);
+
+    return () => {
+      window.clearTimeout(timeoutHandle);
+    };
+  }, [isCanvasCreated, isCanvasVisible, isCustomizeRoute, isIntroAssetReady, isIntroPrepared]);
 
   return (
-    <div className={isCustomizeRoute ? 'fixed inset-0 z-10 pointer-events-auto' : 'homepage-canvas'}>
-      <Canvas shadows dpr={[1, 1.6]}>
+    <div
+      className={
+        isCustomizeRoute
+          ? 'fixed inset-0 z-10 pointer-events-auto'
+          : `homepage-canvas ${isCanvasVisible ? 'homepage-canvas--ready' : 'homepage-canvas--pending'}`
+      }
+    >
+      <Canvas shadows dpr={[1, 1.6]} onCreated={() => setIsCanvasCreated(true)}>
         <PerspectiveCamera ref={cameraRef} makeDefault position={[0, 0, 5]} fov={45} />
         <SceneCameraController cameraRef={cameraRef} />
         <LightingController />
-        <AnimatedBrick isCustomizeRoute={isCustomizeRoute} introObjectMode={introObjectMode} />
+        <AnimatedBrick
+          isCustomizeRoute={isCustomizeRoute}
+          introObjectMode={introObjectMode}
+          onIntroPrepared={() => setIsIntroPrepared(true)}
+        />
         <Environment preset="city" />
       </Canvas>
     </div>

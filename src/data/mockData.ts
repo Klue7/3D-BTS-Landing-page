@@ -119,6 +119,8 @@ interface FinishAssets {
     wallCourses?: number;
   };
   faceImage?: string;
+  faceImageCrop?: ImageCrop;
+  faceImageRotateDegrees?: 0 | 90 | 180 | 270;
 }
 
 interface HeroWordPresentation {
@@ -336,7 +338,7 @@ const entryPaletteBrownSlate: BrickPalette = {
   ash: '#6e5648',
   speckLight: '#b08f78',
   speckDark: '#19100c',
-  body: '#473226',
+  body: '#725340',
   mortar: '#bcae9f',
 };
 
@@ -350,7 +352,7 @@ const entryPaletteGoldenOnyx: BrickPalette = {
   ash: '#a8774e',
   speckLight: '#d8ae7a',
   speckDark: '#26160c',
-  body: '#6f4928',
+  body: '#a06d3f',
   mortar: '#c9b59a',
 };
 
@@ -680,6 +682,9 @@ interface ClayProductConfig {
   heroWord: HeroWordPresentation;
   backdropImage?: string;
   backdropPresentation?: NonNullable<FinishAssets['backdropPresentation']>;
+  faceImage?: string;
+  faceImageCrop?: ImageCrop;
+  faceImageRotateDegrees?: 0 | 90 | 180 | 270;
   galleryImages: string[];
   heroDescription: string;
   materialSubtitle: string;
@@ -729,6 +734,9 @@ function buildClayProduct(config: ClayProductConfig): ProductVariant {
     scenePalette: config.scenePalette,
     finishAssets: {
       backdropImage: config.backdropImage,
+      faceImage: config.faceImage,
+      faceImageCrop: config.faceImageCrop,
+      faceImageRotateDegrees: config.faceImageRotateDegrees,
       galleryImages: config.galleryImages,
       backdropPresentation: config.backdropPresentation,
       decorRevealPresentation: {
@@ -1308,6 +1316,14 @@ export const productCatalog: ProductVariant[] = [
       saturate: 0.92,
       contrast: 1.04,
     },
+    faceImage: brownSlateGalleryImage,
+    faceImageCrop: {
+      x: 0.34,
+      y: 0.15,
+      width: 0.25,
+      height: 0.66,
+    },
+    faceImageRotateDegrees: 90,
     galleryImages: [brownSlateBackdropImage, brownSlateGalleryImage],
     heroDescription:
       'A full-depth brown face brick with darker fired variation, built for more structural wall reads and heavier clay presence.',
@@ -1360,6 +1376,13 @@ export const productCatalog: ProductVariant[] = [
       transform: 'translate(0.4%, -3.15%) scaleX(1.005)',
     },
     backdropImage: undefined,
+    faceImage: goldenOnyxGalleryStackImage,
+    faceImageCrop: {
+      x: 0.31,
+      y: 0.41,
+      width: 0.38,
+      height: 0.17,
+    },
     galleryImages: [goldenOnyxGalleryStackImage, goldenOnyxGalleryImage],
     heroDescription:
       'A golden face brick with dark-veined fired variation, designed for richer clay walls that need more body and contrast than thin cladding.',

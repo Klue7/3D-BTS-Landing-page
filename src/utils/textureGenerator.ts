@@ -1016,6 +1016,7 @@ export async function createImageCropDataUrl(
     width?: number;
     height?: number;
     quality?: number;
+    rotateDegrees?: 0 | 90 | 180 | 270;
   }
 ) {
   if (!imageSrc) return '';
@@ -1023,7 +1024,8 @@ export async function createImageCropDataUrl(
   const width = Math.max(960, Math.round(options?.width ?? 1600));
   const height = Math.max(320, Math.round(options?.height ?? 720));
   const quality = THREE.MathUtils.clamp(options?.quality ?? 0.9, 0.72, 0.96);
-  const cacheKey = JSON.stringify({ imageSrc, crop, width, height, quality });
+  const rotateDegrees = options?.rotateDegrees ?? 0;
+  const cacheKey = JSON.stringify({ imageSrc, crop, width, height, quality, rotateDegrees });
   const cached = cropDataUrlCache.get(cacheKey);
 
   if (cached) {
@@ -1052,19 +1054,43 @@ export async function createImageCropDataUrl(
   const sourceY = Math.max(0, Math.round(sourceHeight * cropBox.y));
   const sourceDrawWidth = Math.max(24, Math.round(sourceWidth * cropBox.width));
   const sourceDrawHeight = Math.max(24, Math.round(sourceHeight * cropBox.height));
+  const sourceCropWidth = Math.min(sourceDrawWidth, sourceWidth - sourceX);
+  const sourceCropHeight = Math.min(sourceDrawHeight, sourceHeight - sourceY);
+  const normalizedRotation = ((rotateDegrees % 360) + 360) % 360;
+  const swapOutputDimensions = normalizedRotation === 90 || normalizedRotation === 270;
 
   context.clearRect(0, 0, width, height);
-  context.drawImage(
-    image,
-    sourceX,
-    sourceY,
-    Math.min(sourceDrawWidth, sourceWidth - sourceX),
-    Math.min(sourceDrawHeight, sourceHeight - sourceY),
-    0,
-    0,
-    width,
-    height
-  );
+  if (normalizedRotation === 0) {
+    context.drawImage(
+      image,
+      sourceX,
+      sourceY,
+      sourceCropWidth,
+      sourceCropHeight,
+      0,
+      0,
+      width,
+      height
+    );
+  } else {
+    context.save();
+    context.translate(width * 0.5, height * 0.5);
+    context.rotate(THREE.MathUtils.degToRad(normalizedRotation));
+    const drawWidth = swapOutputDimensions ? height : width;
+    const drawHeight = swapOutputDimensions ? width : height;
+    context.drawImage(
+      image,
+      sourceX,
+      sourceY,
+      sourceCropWidth,
+      sourceCropHeight,
+      -drawWidth * 0.5,
+      -drawHeight * 0.5,
+      drawWidth,
+      drawHeight
+    );
+    context.restore();
+  }
 
   return canvas.toDataURL('image/jpeg', quality);
   })();

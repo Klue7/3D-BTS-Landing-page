@@ -41,6 +41,15 @@ export function InstallationRevealFrame() {
       const productPresentation = product.finishAssets.decorRevealPresentation;
 
       if (productPresentation?.compositeWallFromFace && product.finishAssets.faceImage) {
+        const faceImageSource =
+          product.finishAssets.faceImageCrop || product.finishAssets.faceImageRotateDegrees
+            ? await createImageCropDataUrl(product.finishAssets.faceImage, product.finishAssets.faceImageCrop, {
+                width: 1536,
+                height: 512,
+                quality: 0.92,
+                rotateDegrees: product.finishAssets.faceImageRotateDegrees,
+              })
+            : product.finishAssets.faceImage;
         const wallBounds = productPresentation.wallBounds ?? {
           x: 0.18,
           y: 0.04,
@@ -49,7 +58,7 @@ export function InstallationRevealFrame() {
         };
         const wallWidth = Math.max(840, Math.round(framePixelWidth * wallBounds.width));
         const wallHeight = Math.max(360, Math.round(framePixelHeight * wallBounds.height));
-        const wallDataUrl = await createBrickWallDataUrl(product.scenePalette, product.finishAssets.faceImage, {
+        const wallDataUrl = await createBrickWallDataUrl(product.scenePalette, faceImageSource || product.finishAssets.faceImage, {
           width: wallWidth,
           height: wallHeight,
           courses: productPresentation.wallCourses ?? 10,
