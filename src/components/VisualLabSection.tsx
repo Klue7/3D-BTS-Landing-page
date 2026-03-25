@@ -1,21 +1,25 @@
 import React from 'react';
-import { visualLabData } from '../data/mockData';
+import { productData } from '../data/mockData';
 import { ArrowLeft } from 'lucide-react';
 import { useVisualLab } from './VisualLabContext';
-import { useProductCatalog } from './ProductCatalogContext';
+import { Link } from 'react-router-dom';
 
-interface VisualLabSectionProps {
-  navigate: (path: string) => void;
-}
-
-export function VisualLabSection({ navigate }: VisualLabSectionProps) {
-  const visualLab = visualLabData;
-  const { activeProduct, activeProductIndex, products, setActiveProductId } = useProductCatalog();
+export function VisualLabSection() {
+  const { visualLab } = productData;
   const { 
+    activeCategory,
     activeGrout, setActiveGrout, 
     activeLayout, setActiveLayout, 
-    activeLighting, setActiveLighting
+    activeLighting, setActiveLighting,
+    setIsCustomizeMode
   } = useVisualLab();
+
+  const activeColor = activeCategory === 'cladding-tiles' ? '#22c55e' : '#eab308';
+  const activeColorClass = activeCategory === 'cladding-tiles' ? 'text-[#22c55e]' : 'text-[#eab308]';
+  const activeBorderClass = activeCategory === 'cladding-tiles' ? 'border-[#22c55e]' : 'border-[#eab308]';
+  const activeBgClass = activeCategory === 'cladding-tiles' ? 'bg-[#22c55e]' : 'bg-[#eab308]';
+  const hoverTextClass = activeCategory === 'cladding-tiles' ? 'hover:text-[#22c55e]' : 'hover:text-[#eab308]';
+  const hoverBorderClass = activeCategory === 'cladding-tiles' ? 'hover:border-[#22c55e]' : 'hover:border-[#eab308]';
 
   const activeGroutColor = visualLab.groutColors.find(g => g.id === activeGrout)?.hex || '#e5e5e5';
 
@@ -36,50 +40,19 @@ export function VisualLabSection({ navigate }: VisualLabSectionProps) {
       <div className="w-full md:w-[400px] bg-[#0a0a0a] border-r border-white/5 p-8 md:p-12 flex flex-col z-20 h-auto md:h-screen md:sticky top-0 overflow-y-auto shrink-0">
         
         <button 
-          className="flex items-center gap-2 text-white/50 hover:text-[#22c55e] text-xs tracking-widest uppercase mb-12 transition-colors w-fit"
-          onClick={() => navigate('/')}
+          className={`flex items-center gap-2 text-white/50 text-xs tracking-widest uppercase mb-12 transition-colors w-fit ${hoverTextClass}`}
+          onClick={() => {
+            setIsCustomizeMode(false);
+            window.scrollTo(0, 0);
+          }}
         >
           <ArrowLeft size={14} /> BACK TO SHOP
         </button>
 
         <h2 className="text-4xl font-['Anton'] text-white uppercase tracking-tighter leading-none mb-2">
-          CUSTOMIZE<br/>{activeProduct.productName.toUpperCase()}
+          DESIGN YOUR<br/>LEGACY
         </h2>
         <p className="text-sm text-white/50 mb-12">{visualLab.subtitle}</p>
-
-        <div className="mb-10">
-          <h3 className="text-[10px] text-white/40 tracking-widest uppercase mb-4">PRODUCT FINISH</h3>
-          <div className="grid grid-cols-2 gap-3">
-            {products.map((product, index) => {
-              const isActive = product.id === activeProduct.id;
-
-              return (
-                <button
-                  key={product.id}
-                  onClick={() => setActiveProductId(product.id)}
-                  className={`flex items-center justify-between border px-4 py-4 text-left transition-all ${isActive ? 'border-[#22c55e] bg-[#22c55e]/10 text-white' : 'border-white/10 bg-transparent text-white/56 hover:border-[#22c55e]/55 hover:text-white'}`}
-                >
-                  <div className="flex items-center gap-3">
-                    <span
-                      className="h-3 w-3 rounded-full"
-                      style={{ backgroundColor: product.scenePalette.highlight }}
-                    />
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.22em]">{product.productName}</p>
-                      <p className="mt-1 text-[10px] uppercase tracking-[0.22em] text-white/40">{product.category}</p>
-                    </div>
-                  </div>
-                  <span className={`text-[10px] font-bold tracking-[0.28em] ${isActive ? 'text-[#22c55e]' : 'text-white/30'}`}>
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-          <p className="mt-3 text-[10px] uppercase tracking-[0.24em] text-white/30">
-            Active finish {String(activeProductIndex + 1).padStart(2, '0')} of {String(products.length).padStart(2, '0')}
-          </p>
-        </div>
 
         {/* Grout Color */}
         <div className="mb-10">
@@ -93,7 +66,7 @@ export function VisualLabSection({ navigate }: VisualLabSectionProps) {
                 title={color.name}
               >
                 <span 
-                  className={`absolute inset-0 rounded-full border-2 transition-all ${activeGrout === color.id ? 'border-[#22c55e]' : 'border-transparent group-hover:border-[#22c55e]/50'}`}
+                  className={`absolute inset-0 rounded-full border-2 transition-all ${activeGrout === color.id ? activeBorderClass : `border-transparent group-hover:${activeBorderClass}/50`}`}
                   style={{ transform: 'scale(1.2)' }}
                 />
                 <span 
@@ -113,7 +86,7 @@ export function VisualLabSection({ navigate }: VisualLabSectionProps) {
               <button 
                 key={layout.id}
                 onClick={() => setActiveLayout(layout.id)}
-                className={`py-4 px-4 text-xs font-bold tracking-widest uppercase border transition-all ${activeLayout === layout.id ? 'bg-[#22c55e] text-black border-[#22c55e]' : 'bg-transparent text-white/40 border-white/10 hover:border-[#22c55e] hover:text-[#22c55e]'}`}
+                className={`py-4 px-4 text-xs font-bold tracking-widest uppercase border transition-all ${activeLayout === layout.id ? `${activeBgClass} text-black ${activeBorderClass}` : `bg-transparent text-white/40 border-white/10 ${hoverBorderClass} ${hoverTextClass}`}`}
               >
                 {layout.name}
               </button>
@@ -129,7 +102,7 @@ export function VisualLabSection({ navigate }: VisualLabSectionProps) {
               <button 
                 key={light.id}
                 onClick={() => setActiveLighting(light.id)}
-                className={`py-4 px-4 text-xs font-bold tracking-widest uppercase border transition-all ${activeLighting === light.id ? 'bg-[#22c55e] text-black border-[#22c55e]' : 'bg-transparent text-white/40 border-white/10 hover:border-[#22c55e] hover:text-[#22c55e]'}`}
+                className={`py-4 px-4 text-xs font-bold tracking-widest uppercase border transition-all ${activeLighting === light.id ? `${activeBgClass} text-black ${activeBorderClass}` : `bg-transparent text-white/40 border-white/10 ${hoverBorderClass} ${hoverTextClass}`}`}
               >
                 {light.name}
               </button>
@@ -137,9 +110,17 @@ export function VisualLabSection({ navigate }: VisualLabSectionProps) {
           </div>
         </div>
 
-        <button className="w-full mt-auto bg-[#22c55e] hover:bg-[#16a34a] text-white py-5 text-sm font-bold tracking-widest uppercase transition-colors shadow-[0_0_30px_rgba(34,197,94,0.3)]">
-          ADD TO COLLECTION
-        </button>
+        <div className="mt-auto space-y-3">
+          <button className={`w-full text-white py-5 text-sm font-bold tracking-widest uppercase transition-colors shadow-[0_0_30px_rgba(34,197,94,0.3)] ${activeBgClass} hover:opacity-80`} style={{ boxShadow: `0 0 30px ${activeColor}4d` }}>
+            ADD TO COLLECTION
+          </button>
+          <Link 
+            to="/customize"
+            className="w-full flex items-center justify-center gap-2 py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-[10px] uppercase tracking-widest font-bold transition-all text-white/60 hover:text-white"
+          >
+            Open in Full Studio
+          </Link>
+        </div>
       </div>
 
       {/* Right Preview Area */}
@@ -164,8 +145,8 @@ export function VisualLabSection({ navigate }: VisualLabSectionProps) {
         />
 
         <div className="absolute top-8 right-8 z-20 text-right pointer-events-none mix-blend-overlay opacity-50">
-          <h2 className="text-6xl md:text-8xl font-['Anton'] text-white uppercase tracking-tighter leading-none">{activeProduct.productName.toUpperCase()}</h2>
-          <p className="text-white text-xs tracking-[0.3em] uppercase">CUSTOM STUDIO</p>
+          <h2 className="text-6xl md:text-8xl font-['Anton'] text-white uppercase tracking-tighter leading-none">CUSTOM</h2>
+          <p className="text-white text-xs tracking-[0.3em] uppercase">LAB EDITION</p>
         </div>
         
         {/* CSS Wall Preview */}
@@ -185,10 +166,9 @@ export function VisualLabSection({ navigate }: VisualLabSectionProps) {
                 const pseudoRandom2 = (Math.cos(seed) + 1) / 2;
                 
                 // Earthy clay/charcoal palette variations
-                const { visualLabPalette } = activeProduct;
-                const lightness = visualLabPalette.lightnessBase + (pseudoRandom * visualLabPalette.lightnessVariance);
-                const hue = visualLabPalette.hueBase + (pseudoRandom2 * visualLabPalette.hueVariance);
-                const saturation = visualLabPalette.saturationBase + (pseudoRandom * visualLabPalette.saturationVariance);
+                const lightness = 18 + (pseudoRandom * 12);
+                const hue = 20 + (pseudoRandom2 * 6);
+                const saturation = 35 + (pseudoRandom * 10);
                 
                 return (
                   <div 

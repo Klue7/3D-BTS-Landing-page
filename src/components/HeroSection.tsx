@@ -1,115 +1,159 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useProductCatalog } from './ProductCatalogContext';
-import { SectionCartCta } from './SectionCartCta';
+import { useVisualLab } from './VisualLabContext';
 
 export function HeroSection() {
-  const { activeProduct, activeProductIndex, products, setActiveProductId, goToNextProduct, goToPreviousProduct } = useProductCatalog();
-  const productWord = activeProduct.heroWord?.label ?? activeProduct.productName.toUpperCase();
-  const backgroundWordStyle = {
-    fontSize:
-      activeProduct.heroWord?.fontSize ??
-      (productWord.length <= 6
-        ? 'min(31vw, 43vh)'
-        : productWord.length <= 8
-          ? 'min(27vw, 41vh)'
-          : 'min(23vw, 38vh)'),
+  const { activeCategory, setActiveCategory } = useVisualLab();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleScroll = () => {
+    if (!scrollContainerRef.current) return;
+    
+    const { scrollLeft, clientWidth } = scrollContainerRef.current;
+    const sectionIndex = Math.round(scrollLeft / clientWidth);
+    
+    if (sectionIndex === 0 && activeCategory !== 'cladding-tiles') {
+      setActiveCategory('cladding-tiles');
+    } else if (sectionIndex === 1 && activeCategory !== 'clay-bricks') {
+      setActiveCategory('clay-bricks');
+    }
   };
-  const formatSummary = activeProduct.technical.specs.slice(0, 3).map((spec) => spec.value).join('  •  ');
-  const countLabel = `${String(activeProductIndex + 1).padStart(2, '0')} / ${String(products.length).padStart(2, '0')}`;
+
+  const scrollToSection = (index: number) => {
+    if (!scrollContainerRef.current) return;
+    const { clientWidth } = scrollContainerRef.current;
+    scrollContainerRef.current.scrollTo({
+      left: index * clientWidth,
+      behavior: 'smooth'
+    });
+  };
+
+  // Sync scroll position if category changes externally
+  useEffect(() => {
+    if (!scrollContainerRef.current) return;
+    const { clientWidth } = scrollContainerRef.current;
+    const targetScrollLeft = activeCategory === 'cladding-tiles' ? 0 : clientWidth;
+    
+    // Only scroll if we're not already there (to prevent fighting with manual scroll)
+    if (Math.abs(scrollContainerRef.current.scrollLeft - targetScrollLeft) > 10) {
+      scrollContainerRef.current.scrollTo({
+        left: targetScrollLeft,
+        behavior: 'smooth'
+      });
+    }
+  }, [activeCategory]);
 
   return (
-    <section id="hero" className="hero-shell pointer-events-none">
-      <div className="slide-frame">
-        <div className="slide-grid-overlay" />
+    <section id="hero" className="relative w-full h-screen overflow-hidden bg-[#0a0a0a]">
+      {/* Background Texture */}
+      <div 
+        className="absolute inset-0 opacity-20 pointer-events-none"
+        style={{
+          backgroundImage: 'url("https://images.unsplash.com/photo-1516533075015-a3838414c3ca?auto=format&fit=crop&q=80&w=2000")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          filter: 'grayscale(100%) contrast(120%)'
+        }}
+      />
 
-        <div className="absolute inset-0 z-[10] flex items-center justify-center overflow-hidden pointer-events-none">
-          <h1
-            data-hero-word
-            className="hero-word-layer hero-word-fill select-none"
-            style={{
-              ...backgroundWordStyle,
-              transform: activeProduct.heroWord?.transform ?? 'translate(0.5%, -3.5%) scaleX(1.005)',
-            }}
-          >
-            {productWord}
-          </h1>
-        </div>
+      {/* Background Glow */}
+      <div className="absolute inset-0 flex items-center justify-center opacity-20 transition-colors duration-1000 pointer-events-none">
+        <div className={`w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] rounded-full blur-[150px] transition-colors duration-1000 ${activeCategory === 'cladding-tiles' ? 'bg-[#22c55e]' : 'bg-[#eab308]'}`}></div>
+      </div>
 
-        <div data-hero-motion="left" className="absolute bottom-16 left-6 z-20 max-w-[22rem] md:bottom-16 md:left-12 md:max-w-[24rem] xl:left-16">
-          <div className="absolute -inset-x-8 -inset-y-8 -z-10 pointer-events-none bg-[radial-gradient(circle_at_18%_34%,rgba(0,0,0,0.6)_0%,rgba(0,0,0,0.26)_44%,transparent_80%)] blur-2xl" />
-          <p className="mb-5 text-[10px] font-bold tracking-[0.34em] uppercase text-[#22c55e] md:text-xs">
-            Brick Tile Shop Signature Finish
-          </p>
-          <h2 className="text-[3.5rem] leading-[0.92] font-bold tracking-tight text-[#f4f1eb] md:text-[4rem]">
-            {activeProduct.productName}
-          </h2>
-          <p className="mt-3 text-[10px] uppercase tracking-[0.28em] text-white/72 md:text-xs">
-            {activeProduct.category}
-          </p>
-          <p className="mt-5 max-w-[21rem] text-sm leading-relaxed text-white/72 md:max-w-[22rem] md:text-base">
-            {activeProduct.heroDescription}
-          </p>
-          <div className="mt-7">
-            <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-white/34 md:text-[11px]">Selling Price</p>
-            <p className="mt-2 text-[clamp(2.9rem,5.2vw,4.4rem)] font-semibold leading-none tracking-tight text-[#22c55e]">
-              {activeProduct.pricing.amount}
-            </p>
-            <p className="mt-2 text-[10px] uppercase tracking-[0.26em] text-white/58 md:text-[11px]">
-              {activeProduct.pricing.detail}
-            </p>
+      {/* Horizontal Scroll Container */}
+      <div 
+        ref={scrollContainerRef}
+        className="absolute inset-0 flex overflow-x-auto snap-x snap-mandatory hide-scrollbar"
+        onScroll={handleScroll}
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {/* Section 1: Cladding Tiles */}
+        <div className="w-screen h-screen shrink-0 snap-center flex flex-col items-center justify-center relative">
+          <div className="absolute top-[30%] left-1/2 -translate-x-1/2 z-20">
+            <h2 className="text-xs md:text-sm font-bold tracking-[0.3em] uppercase text-[#22c55e]">
+              BRICK TILE SHOP
+            </h2>
           </div>
-          <p className="mt-6 text-[10px] uppercase tracking-[0.32em] text-white/62 md:text-xs">
-            Format {formatSummary}
-          </p>
-        </div>
-
-        <div data-hero-motion="up" className="pointer-events-auto absolute bottom-24 left-1/2 z-20 flex w-[calc(100%-3rem)] -translate-x-1/2 flex-col gap-3 md:bottom-16 md:w-auto md:flex-row md:items-center">
-          <button className="w-full rounded-full bg-[#22c55e] px-9 py-4 text-xs font-bold uppercase tracking-[0.32em] text-white shadow-[0_0_40px_rgba(34,197,94,0.34)] transition-all hover:scale-[1.02] hover:bg-[#16a34a] md:w-auto">
-            {activeProduct.primaryCta}
-          </button>
-          <SectionCartCta sectionLabel="Hero section" />
-        </div>
-
-        <div data-hero-motion="right" className="pointer-events-auto absolute bottom-7 right-6 z-20 flex items-center gap-3 md:bottom-16 md:right-12 xl:right-16">
-          <div className="rounded-full border border-white/12 bg-black/45 px-4 py-2 backdrop-blur-md">
-            <p className="text-[9px] uppercase tracking-[0.28em] text-white/36">{countLabel}</p>
-            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-white/72 md:text-[11px]">
-              {activeProduct.productName}
-            </p>
-          </div>
-          <div className="flex items-center gap-2 rounded-full border border-white/12 bg-black/45 px-2 py-2 backdrop-blur-md">
-            <div className="flex items-center gap-2 px-1">
-              {products.map((product) => {
-                const isActive = product.id === activeProduct.id;
-
-                return (
-                  <button
-                    key={product.id}
-                    onClick={() => setActiveProductId(product.id)}
-                    aria-label={`Show ${product.productName} product`}
-                    className={`h-2.5 w-2.5 rounded-full transition-all ${isActive ? 'scale-125 bg-[#22c55e]' : 'bg-white/26 hover:bg-white/55'}`}
-                  />
-                );
-              })}
+          <div className="absolute bottom-32 md:bottom-40 left-1/2 -translate-x-1/2 z-20">
+            <div className="px-6 py-2 rounded-full border border-white/10 bg-black/50 backdrop-blur-md">
+              <span className="text-white text-xs md:text-sm font-bold tracking-widest uppercase">
+                BRICK TILE SHOP TILE
+              </span>
             </div>
-          <button
-            onClick={goToPreviousProduct}
-            aria-label="Show previous product"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/16 text-white transition-all hover:border-[#22c55e] hover:bg-[#22c55e]/10 md:h-12 md:w-12"
-          >
-            <ChevronLeft size={18} />
-          </button>
-          <button
-            onClick={goToNextProduct}
-            aria-label="Show next product"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/16 text-white transition-all hover:border-[#22c55e] hover:bg-[#22c55e]/10 md:h-12 md:w-12"
-          >
-            <ChevronRight size={18} />
-          </button>
+          </div>
+        </div>
+
+        {/* Section 2: Clay Bricks */}
+        <div className="w-screen h-screen shrink-0 snap-center flex flex-col items-center justify-center relative">
+          <div className="absolute top-[30%] left-1/2 -translate-x-1/2 z-20">
+            <h2 className="text-xs md:text-sm font-bold tracking-[0.3em] uppercase text-[#eab308]">
+              BRICK TILE SHOP
+            </h2>
+          </div>
+          <div className="absolute bottom-32 md:bottom-40 left-1/2 -translate-x-1/2 z-20">
+            <div className="px-6 py-2 rounded-full border border-white/10 bg-black/50 backdrop-blur-md">
+              <span className="text-white text-xs md:text-sm font-bold tracking-widest uppercase">
+                BRICK TILE SHOP BRICK
+              </span>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Fixed Bottom Controls */}
+      <div className="absolute bottom-12 md:bottom-16 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-6 w-full px-4 pointer-events-none">
+        {/* Category Toggle */}
+        <div className="flex items-center gap-4 pointer-events-auto">
+          <button 
+            onClick={() => scrollToSection(0)}
+            className={`w-10 h-10 rounded-full border border-white/20 flex items-center justify-center transition-colors bg-black/50 backdrop-blur-md ${activeCategory === 'cladding-tiles' ? 'border-[#22c55e] text-[#22c55e]' : 'hover:border-[#22c55e] hover:text-[#22c55e] text-white/50'}`}
+          >
+            <ChevronLeft size={16} />
+          </button>
+          
+          <div className="flex items-center rounded-full border border-white/20 bg-black/50 backdrop-blur-md overflow-hidden p-1">
+            <button 
+              onClick={() => scrollToSection(0)}
+              className={`px-6 py-2 text-xs font-bold tracking-widest uppercase rounded-full transition-colors ${
+                activeCategory === 'cladding-tiles' 
+                  ? 'bg-transparent text-[#22c55e]' 
+                  : 'text-white/50 hover:text-white'
+              }`}
+            >
+              CLADDING TILES
+            </button>
+            <button 
+              onClick={() => scrollToSection(1)}
+              className={`px-6 py-2 text-xs font-bold tracking-widest uppercase rounded-full transition-colors ${
+                activeCategory === 'clay-bricks' 
+                  ? 'bg-transparent text-[#eab308]' 
+                  : 'text-white/50 hover:text-white'
+              }`}
+            >
+              CLAY BRICKS
+            </button>
+          </div>
+
+          <button 
+            onClick={() => scrollToSection(1)}
+            className={`w-10 h-10 rounded-full border border-white/20 flex items-center justify-center transition-colors bg-black/50 backdrop-blur-md ${activeCategory === 'clay-bricks' ? 'border-[#eab308] text-[#eab308]' : 'hover:border-[#eab308] hover:text-[#eab308] text-white/50'}`}
+          >
+            <ChevronRight size={16} />
+          </button>
+        </div>
+
+        {/* Scroll Hint */}
+        <p className="text-[10px] md:text-xs text-white/40 tracking-widest uppercase mt-2 text-center pointer-events-auto">
+          SCROLL TO BROWSE THE {activeCategory === 'cladding-tiles' ? 'CLADDING TILES' : 'CLAY BRICKS'} SELECTION BOARD
+        </p>
+      </div>
+
+      <style dangerouslySetInnerHTML={{__html: `
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+      `}} />
     </section>
   );
 }
