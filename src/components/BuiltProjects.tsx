@@ -37,12 +37,13 @@ export function BuiltProjects() {
   const [selectedProjectForDetail, setSelectedProjectForDetail] = useState<any>(null);
 
   const categories = ['All', 'Residential', 'Commercial', 'Hospitality', 'Public Space'];
-  const productCategories = ['All', 'Brick Tiles', 'Clay Bricks'];
+  const productCategories = ['All', 'Cladding Tiles', 'Bricks', 'Paving'];
 
   const allProducts = useMemo(() => {
     return [
       ...(productData['cladding-tiles'].catalog || []),
-      ...(productData['clay-bricks']?.catalog || [])
+      ...(productData['bricks']?.catalog || []),
+      ...(productData['paving']?.catalog || [])
     ];
   }, []);
 
@@ -55,8 +56,9 @@ export function BuiltProjects() {
       
       // Category matching logic (simplified for mock)
       const matchesCategory = activeCategory === 'All' || (
-        activeCategory === 'Brick Tiles' && p.products.some(id => id.includes('tile') || id.includes('serengeti') || id.includes('zambezi')) ||
-        activeCategory === 'Clay Bricks' && p.products.some(id => id.includes('brick'))
+        activeCategory === 'Cladding Tiles' && p.products.some(id => id.includes('tile') || id.includes('serengeti') || id.includes('zambezi')) ||
+        activeCategory === 'Bricks' && p.products.some(id => id.includes('brick')) ||
+        activeCategory === 'Paving' && p.products.some(id => id.includes('paver'))
       );
 
       const matchesSearch = searchQuery === '' || 
@@ -93,7 +95,7 @@ export function BuiltProjects() {
       const product = allProducts.find(p => p.id === project.products[0]);
       if (product) {
         setSelectedCatalogItem(product);
-        const category = product.id.includes('brick') ? 'clay-bricks' : 'cladding-tiles';
+        const category = product.id.includes('brick') ? 'bricks' : product.id.includes('paver') ? 'paving' : 'cladding-tiles';
         setContextCategory(category);
         setIsCustomizeMode(true);
         navigate('/customize');
@@ -105,7 +107,7 @@ export function BuiltProjects() {
     const product = allProducts.find(p => p.id === pId);
     if (product) {
       setSelectedCatalogItem(product);
-      const category = product.id.includes('brick') ? 'clay-bricks' : 'cladding-tiles';
+      const category = product.id.includes('brick') ? 'bricks' : product.id.includes('paver') ? 'paving' : 'cladding-tiles';
       setContextCategory(category);
       navigate('/catalog');
     }
@@ -497,7 +499,7 @@ export function BuiltProjects() {
                     <div>
                       <div className="text-[10px] uppercase tracking-widest text-white/20 mb-3">Completion Date</div>
                       <div className="text-xs font-bold uppercase tracking-widest text-white">
-                        {new Date(selectedProjectForDetail.date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                        {new Date(selectedProjectForDetail.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                       </div>
                     </div>
                   </div>

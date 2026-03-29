@@ -14,8 +14,10 @@ export function HeroSection() {
     
     if (sectionIndex === 0 && activeCategory !== 'cladding-tiles') {
       setActiveCategory('cladding-tiles');
-    } else if (sectionIndex === 1 && activeCategory !== 'clay-bricks') {
-      setActiveCategory('clay-bricks');
+    } else if (sectionIndex === 1 && activeCategory !== 'bricks') {
+      setActiveCategory('bricks');
+    } else if (sectionIndex === 2 && activeCategory !== 'paving') {
+      setActiveCategory('paving');
     }
   };
 
@@ -32,7 +34,7 @@ export function HeroSection() {
   useEffect(() => {
     if (!scrollContainerRef.current) return;
     const { clientWidth } = scrollContainerRef.current;
-    const targetScrollLeft = activeCategory === 'cladding-tiles' ? 0 : clientWidth;
+    const targetScrollLeft = activeCategory === 'cladding-tiles' ? 0 : activeCategory === 'bricks' ? clientWidth : clientWidth * 2;
     
     // Only scroll if we're not already there (to prevent fighting with manual scroll)
     if (Math.abs(scrollContainerRef.current.scrollLeft - targetScrollLeft) > 10) {
@@ -58,7 +60,11 @@ export function HeroSection() {
 
       {/* Background Glow */}
       <div className="absolute inset-0 flex items-center justify-center opacity-20 transition-colors duration-1000 pointer-events-none">
-        <div className={`w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] rounded-full blur-[150px] transition-colors duration-1000 ${activeCategory === 'cladding-tiles' ? 'bg-[#22c55e]' : 'bg-[#eab308]'}`}></div>
+        <div className={`w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] rounded-full blur-[150px] transition-colors duration-1000 ${
+          activeCategory === 'cladding-tiles' ? 'bg-[#22c55e]' : 
+          activeCategory === 'bricks' ? 'bg-[#eab308]' : 
+          'bg-[#94a3b8]'
+        }`}></div>
       </div>
 
       {/* Horizontal Scroll Container */}
@@ -84,7 +90,7 @@ export function HeroSection() {
           </div>
         </div>
 
-        {/* Section 2: Clay Bricks */}
+        {/* Section 2: Bricks */}
         <div className="w-screen h-screen shrink-0 snap-center flex flex-col items-center justify-center relative">
           <div className="absolute top-[30%] left-1/2 -translate-x-1/2 z-20">
             <h2 className="text-xs md:text-sm font-bold tracking-[0.3em] uppercase text-[#eab308]">
@@ -99,6 +105,22 @@ export function HeroSection() {
             </div>
           </div>
         </div>
+
+        {/* Section 3: Paving */}
+        <div className="w-screen h-screen shrink-0 snap-center flex flex-col items-center justify-center relative">
+          <div className="absolute top-[30%] left-1/2 -translate-x-1/2 z-20">
+            <h2 className="text-xs md:text-sm font-bold tracking-[0.3em] uppercase text-[#94a3b8]">
+              BRICK TILE SHOP
+            </h2>
+          </div>
+          <div className="absolute bottom-32 md:bottom-40 left-1/2 -translate-x-1/2 z-20">
+            <div className="px-6 py-2 rounded-full border border-white/10 bg-black/50 backdrop-blur-md">
+              <span className="text-white text-xs md:text-sm font-bold tracking-widest uppercase">
+                BRICK TILE SHOP PAVING
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Fixed Bottom Controls */}
@@ -106,8 +128,11 @@ export function HeroSection() {
         {/* Category Toggle */}
         <div className="flex items-center gap-4 pointer-events-auto">
           <button 
-            onClick={() => scrollToSection(0)}
-            className={`w-10 h-10 rounded-full border border-white/20 flex items-center justify-center transition-colors bg-black/50 backdrop-blur-md ${activeCategory === 'cladding-tiles' ? 'border-[#22c55e] text-[#22c55e]' : 'hover:border-[#22c55e] hover:text-[#22c55e] text-white/50'}`}
+            onClick={() => {
+              const currentIndex = activeCategory === 'cladding-tiles' ? 0 : activeCategory === 'bricks' ? 1 : 2;
+              scrollToSection(Math.max(0, currentIndex - 1));
+            }}
+            className={`w-10 h-10 rounded-full border border-white/20 flex items-center justify-center transition-colors bg-black/50 backdrop-blur-md hover:border-white hover:text-white text-white/50`}
           >
             <ChevronLeft size={16} />
           </button>
@@ -126,18 +151,31 @@ export function HeroSection() {
             <button 
               onClick={() => scrollToSection(1)}
               className={`px-6 py-2 text-xs font-bold tracking-widest uppercase rounded-full transition-colors ${
-                activeCategory === 'clay-bricks' 
+                activeCategory === 'bricks' 
                   ? 'bg-transparent text-[#eab308]' 
                   : 'text-white/50 hover:text-white'
               }`}
             >
-              CLAY BRICKS
+              BRICKS
+            </button>
+            <button 
+              onClick={() => scrollToSection(2)}
+              className={`px-6 py-2 text-xs font-bold tracking-widest uppercase rounded-full transition-colors ${
+                activeCategory === 'paving' 
+                  ? 'bg-transparent text-[#94a3b8]' 
+                  : 'text-white/50 hover:text-white'
+              }`}
+            >
+              PAVING
             </button>
           </div>
 
           <button 
-            onClick={() => scrollToSection(1)}
-            className={`w-10 h-10 rounded-full border border-white/20 flex items-center justify-center transition-colors bg-black/50 backdrop-blur-md ${activeCategory === 'clay-bricks' ? 'border-[#eab308] text-[#eab308]' : 'hover:border-[#eab308] hover:text-[#eab308] text-white/50'}`}
+            onClick={() => {
+              const currentIndex = activeCategory === 'cladding-tiles' ? 0 : activeCategory === 'bricks' ? 1 : 2;
+              scrollToSection(Math.min(2, currentIndex + 1));
+            }}
+            className={`w-10 h-10 rounded-full border border-white/20 flex items-center justify-center transition-colors bg-black/50 backdrop-blur-md hover:border-white hover:text-white text-white/50`}
           >
             <ChevronRight size={16} />
           </button>
@@ -145,7 +183,11 @@ export function HeroSection() {
 
         {/* Scroll Hint */}
         <p className="text-[10px] md:text-xs text-white/40 tracking-widest uppercase mt-2 text-center pointer-events-auto">
-          SCROLL TO BROWSE THE {activeCategory === 'cladding-tiles' ? 'CLADDING TILES' : 'CLAY BRICKS'} SELECTION BOARD
+          SCROLL TO BROWSE THE {
+            activeCategory === 'cladding-tiles' ? 'CLADDING TILES' : 
+            activeCategory === 'bricks' ? 'BRICKS' : 
+            'PAVING'
+          } SELECTION BOARD
         </p>
       </div>
 

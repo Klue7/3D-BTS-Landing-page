@@ -59,3 +59,62 @@ export function createBumpTexture() {
   const texture = new THREE.CanvasTexture(canvas);
   return texture;
 }
+
+export function createPavingTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 1024;
+  const context = canvas.getContext('2d');
+  if (!context) return new THREE.Texture();
+
+  // Base color - charcoal/grey for pavers
+  const gradient = context.createRadialGradient(512, 512, 0, 512, 512, 800);
+  gradient.addColorStop(0, '#444444'); 
+  gradient.addColorStop(0.7, '#222222');
+  gradient.addColorStop(1, '#111111');
+
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, 1024, 1024);
+
+  // Add granular noise for stone/concrete feel
+  const imageData = context.getImageData(0, 0, 1024, 1024);
+  const data = imageData.data;
+  for (let i = 0; i < data.length; i += 4) {
+    const noise = (Math.random() - 0.5) * 40;
+    data[i] = Math.max(0, Math.min(255, data[i] + noise));
+    data[i + 1] = Math.max(0, Math.min(255, data[i + 1] + noise));
+    data[i + 2] = Math.max(0, Math.min(255, data[i + 2] + noise));
+  }
+  context.putImageData(imageData, 0, 0);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+export function createPavingBumpTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 1024;
+  const context = canvas.getContext('2d');
+  if (!context) return new THREE.Texture();
+
+  context.fillStyle = '#808080';
+  context.fillRect(0, 0, 1024, 1024);
+
+  const imageData = context.getImageData(0, 0, 1024, 1024);
+  const data = imageData.data;
+  for (let i = 0; i < data.length; i += 4) {
+    const noise = Math.random() * 255;
+    const isPitting = Math.random() > 0.92;
+    const val = isPitting ? noise * 0.1 : 128 + (noise - 128) * 0.4;
+    data[i] = val;
+    data[i + 1] = val;
+    data[i + 2] = val;
+    data[i + 3] = 255;
+  }
+  context.putImageData(imageData, 0, 0);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  return texture;
+}

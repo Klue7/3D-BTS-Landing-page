@@ -4,18 +4,75 @@ import { Float, PerspectiveCamera, Environment, ContactShadows, PresentationCont
 import { motion, AnimatePresence } from 'motion/react';
 import { useVisualLab } from './VisualLabContext';
 import { productData } from '../data/mockData';
-import { ChevronRight, X, Plus, Minus, ShoppingCart, Info, Ruler, Package, Truck, Star, Layers, Sun, Moon } from 'lucide-react';
+import { ChevronRight, X, Plus, Minus, ShoppingCart, Info, Ruler, Package, Truck, Star, Layers, Sun, Moon, ShieldCheck, Palette, LayoutGrid, Sparkles } from 'lucide-react';
 import * as THREE from 'three';
 
 const MOODS = [
-  { id: 'Rich Aesthetic', icon: Star, label: 'Rich Aesthetic' },
+  { id: 'Rich Aesthetic', icon: Star, label: 'Classic' },
   { id: 'Modern', icon: Layers, label: 'Modern' },
-  { id: 'Tan', icon: Sun, label: 'Tan' },
-  { id: 'Dark', icon: Moon, label: 'Dark' }
+  { id: 'Tan', icon: Sun, label: 'Natural' },
+  { id: 'Dark', icon: Moon, label: 'Premium' }
 ];
 
-function TileMesh({ item, isAnySelected }: { item: any, isAnySelected: boolean }) {
+const BRICK_TYPES = [
+  { id: 'NFB', icon: Package, label: 'NFB', description: 'Non-Facing Brick', strength: '7-10 MPa' },
+  { id: 'NFX', icon: ShieldCheck, label: 'NFX', description: 'Non-Facing Extra', strength: '14-20 MPa' },
+  { id: 'FBA', icon: Palette, label: 'FBA', description: 'Face Brick Aesthetic', strength: '20 MPa+' },
+  { id: 'FBS', icon: LayoutGrid, label: 'FBS', description: 'Face Brick Standard', strength: '20 MPa+' },
+  { id: 'FBX', icon: Sparkles, label: 'FBX', description: 'Face Brick Extra', strength: '25 MPa+' }
+];
+
+function CategoryMesh({ dimensions, color, type }: { dimensions: any, color: string, type: string }) {
   const meshRef = useRef<THREE.Mesh>(null);
+  useFrame((state) => {
+    if (meshRef.current) {
+      meshRef.current.rotation.y = state.clock.elapsedTime * 0.5;
+    }
+  });
+  return (
+    <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
+      <mesh ref={meshRef} castShadow receiveShadow>
+        <boxGeometry args={dimensions as any} />
+        <meshStandardMaterial 
+          color={color} 
+          roughness={type.includes('FBX') ? 0.2 : 0.6} 
+          metalness={0.1}
+        />
+      </mesh>
+    </Float>
+  );
+}
+
+function Category3D({ type, category, color }: { type: string, category: string, color?: string }) {
+  const dimensions = useMemo(() => {
+    switch(category) {
+      case 'bricks': return [1.6, 0.6, 0.6];
+      case 'paving': return [1.2, 1.2, 0.3];
+      default: return [1.6, 0.6, 0.1];
+    }
+  }, [category]);
+
+  return (
+    <Canvas shadows dpr={[1, 2]} camera={{ position: [0, 0, 3], fov: 35 }} className="h-32 w-full">
+      <ambientLight intensity={0.5} />
+      <pointLight position={[10, 10, 10]} intensity={1} />
+      <CategoryMesh dimensions={dimensions} color={color || "#8B4513"} type={type} />
+      <Environment preset="city" />
+    </Canvas>
+  );
+}
+
+function TileMesh({ item, isAnySelected }: { item: any, isAnySelected: boolean }) {
+  const { activeCategory } = useVisualLab();
+  const meshRef = useRef<THREE.Mesh>(null);
+  
+  const dimensions = useMemo(() => {
+    switch(activeCategory) {
+      case 'bricks': return [1.6, 0.6, 0.6];
+      case 'paving': return [1.2, 1.2, 0.3];
+      default: return [1.6, 0.6, 0.1];
+    }
+  }, [activeCategory]);
   
   useFrame((state) => {
     if (meshRef.current && !isAnySelected) {
@@ -27,7 +84,7 @@ function TileMesh({ item, isAnySelected }: { item: any, isAnySelected: boolean }
   return (
     <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
       <mesh ref={meshRef} castShadow receiveShadow>
-        <boxGeometry args={[1.6, 0.6, 0.1]} />
+        <boxGeometry args={dimensions as any} />
         <meshStandardMaterial 
           color={item.color} 
           roughness={0.4} 
@@ -74,16 +131,23 @@ export function CatalogSection() {
     setQuoteQuantity
   } = useVisualLab();
   
-  const items = (productData as any)[activeCategory].catalog;
-  const accentColor = activeCategory === 'cladding-tiles' ? '#F27D26' : '#8B4513';
+  const items = (productData as any)[activeCategory]?.catalog || [];
+  const accentColor = activeCategory === 'cladding-tiles' ? '#F27D26' : activeCategory === 'paving' ? '#555555' : '#8B4513';
+
+  const categories = useMemo(() => {
+    if (activeCategory === 'bricks') return BRICK_TYPES;
+    return MOODS;
+  }, [activeCategory]);
 
   const groupedItems = useMemo(() => {
     const groups: Record<string, any[]> = {};
-    MOODS.forEach(mood => {
-      groups[mood.id] = items.filter((item: any) => item.mood === mood.id);
+    categories.forEach(cat => {
+      groups[cat.id] = items.filter((item: any) => 
+        activeCategory === 'bricks' ? item.subCategory === cat.id : item.mood === cat.id
+      );
     });
     return groups;
-  }, [items]);
+  }, [items, categories, activeCategory]);
 
   const handleAddToCart = () => {
     setIsQuoteWizardOpen(true);
@@ -94,7 +158,7 @@ export function CatalogSection() {
       {/* Background Text */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none opacity-[0.015] whitespace-nowrap">
         <h2 className="text-[25vw] font-bold uppercase leading-none">
-          Moods
+          {activeCategory === 'bricks' ? 'Types' : 'Moods'}
         </h2>
       </div>
 
@@ -106,7 +170,7 @@ export function CatalogSection() {
             viewport={{ once: true }}
             className="text-6xl md:text-8xl font-light text-white tracking-tighter mb-4"
           >
-            Colour <span className="italic font-serif text-[#C5A059]">Moods</span>
+            {activeCategory === 'bricks' ? 'Brick' : 'Colour'} <span className="italic font-serif text-[#C5A059]">{activeCategory === 'bricks' ? 'Types' : 'Moods'}</span>
           </motion.h2>
           <motion.div 
             initial={{ width: 0 }}
@@ -116,27 +180,39 @@ export function CatalogSection() {
           />
         </div>
 
-        {/* Mood Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8">
-          {MOODS.map((mood, idx) => (
+        {/* Category Grid */}
+        <div className={`grid grid-cols-1 ${activeCategory === 'bricks' ? 'md:grid-cols-5' : 'md:grid-cols-4'} gap-12 md:gap-8`}>
+          {categories.map((cat: any, idx) => (
             <motion.div 
-              key={mood.id}
+              key={cat.id}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.1 }}
               className="flex flex-col items-center"
             >
-              <div className="mb-8 flex flex-col items-center gap-4">
-                <mood.icon size={24} className="text-[#C5A059]" />
+              <div className="mb-8 flex flex-col items-center gap-4 w-full">
+                <div className="h-32 w-full mb-4">
+                  <Category3D 
+                    type={cat.id} 
+                    category={activeCategory} 
+                    color={activeCategory === 'bricks' ? (groupedItems[cat.id]?.[0]?.color || '#8B4513') : undefined} 
+                  />
+                </div>
+                <cat.icon size={20} className="text-[#C5A059]" />
                 <h3 className="text-xl font-light text-white/80 tracking-widest uppercase text-center">
-                  {mood.label}
+                  {cat.label}
                 </h3>
+                {cat.description && (
+                  <p className="text-[10px] text-white/40 uppercase tracking-widest text-center max-w-[120px]">
+                    {cat.description}
+                  </p>
+                )}
                 <div className="w-16 h-[1px] bg-white/20" />
               </div>
 
               <div className="w-full space-y-8">
-                {groupedItems[mood.id]?.map((item) => (
+                {groupedItems[cat.id]?.map((item) => (
                   <CatalogTile 
                     key={item.id} 
                     item={item} 
@@ -189,7 +265,11 @@ export function CatalogSection() {
                       >
                         <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
                           <mesh castShadow receiveShadow>
-                            <boxGeometry args={[2.2, 1, 0.2]} />
+                            <boxGeometry args={
+                              activeCategory === 'bricks' ? [2.2, 1, 1] :
+                              activeCategory === 'paving' ? [2, 2, 0.5] :
+                              [2.2, 1, 0.2]
+                            } />
                             <meshStandardMaterial 
                               color={selectedCatalogItem.color} 
                               roughness={0.4} 
@@ -242,8 +322,8 @@ export function CatalogSection() {
 
                   {/* Actions */}
                   <div className="mt-auto space-y-6">
-                    <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
-                      <div className="flex items-center gap-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10 gap-4">
+                      <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
                         <span className="text-xs uppercase tracking-widest text-white/40">Quantity</span>
                         <div className="flex items-center gap-3">
                           <button 
@@ -261,7 +341,7 @@ export function CatalogSection() {
                           </button>
                         </div>
                       </div>
-                      <div className="text-right">
+                      <div className="text-left sm:text-right w-full sm:w-auto flex flex-row sm:flex-col justify-between sm:justify-end items-center sm:items-end">
                         <div className="text-[9px] uppercase tracking-widest text-white/30">Estimated Total</div>
                         <div className="text-xl font-mono text-white">R{(parseFloat(selectedCatalogItem.price.replace('R ', '')) * quoteQuantity).toLocaleString()}</div>
                       </div>
@@ -282,6 +362,73 @@ export function CatalogSection() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Brick Guide Section */}
+      {activeCategory === 'bricks' && (productData.bricks as any).brickTypesGuide && (
+        <div className="max-w-7xl mx-auto px-6 mt-32 relative z-10">
+          <div className="mb-16">
+            <motion.h3 
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="text-3xl font-light text-white tracking-tight mb-2"
+            >
+              Brick <span className="italic font-serif text-[#C5A059]">Classification Guide</span>
+            </motion.h3>
+            <p className="text-white/40 text-sm max-w-2xl">
+              Understanding the technical classifications of clay and cement bricks to ensure the correct selection for your structural or aesthetic requirements.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            {(productData.bricks as any).brickTypesGuide.map((guide: any, idx: number) => (
+              <motion.div
+                key={guide.type}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1 }}
+                className="p-6 bg-white/[0.02] border border-white/10 rounded-2xl hover:bg-white/[0.04] transition-all group"
+              >
+                <div className="text-[#C5A059] font-mono text-[10px] tracking-[0.2em] mb-4 opacity-60 group-hover:opacity-100 transition-opacity">
+                  {guide.strength}
+                </div>
+                <h4 className="text-white font-medium text-lg mb-3 tracking-tight">
+                  {guide.type}
+                </h4>
+                <div className="w-8 h-[1px] bg-[#C5A059]/30 mb-4" />
+                <p className="text-white/50 text-xs leading-relaxed">
+                  {guide.useCase}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Cement Bricks Specific Info */}
+          {(productData.bricks as any).cementBrickSpecs && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              className="mt-12 p-8 bg-[#C5A059]/5 border border-[#C5A059]/10 rounded-2xl flex flex-col md:flex-row items-center gap-8"
+            >
+              <div className="flex-1">
+                <h4 className="text-white font-medium mb-2 uppercase tracking-widest text-sm">Cement Bricks — Quality & Strength</h4>
+                <p className="text-white/50 text-xs leading-relaxed max-w-2xl">
+                  {(productData.bricks as any).cementBrickSpecs.description}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {(productData.bricks as any).cementBrickSpecs.categories.map((cat: string) => (
+                  <div key={cat} className="px-4 py-2 bg-black/40 border border-[#C5A059]/30 rounded-lg text-[#C5A059] text-[10px] font-bold tracking-widest">
+                    {cat}
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </div>
+      )}
 
       {/* Footer Info */}
       {!selectedCatalogItem && (

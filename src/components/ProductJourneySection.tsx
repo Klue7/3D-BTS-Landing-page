@@ -27,6 +27,16 @@ export function ProductJourneySection() {
 
   return (
     <section id="product-journey" className="relative w-full min-h-screen bg-[#050505] flex items-center overflow-hidden py-24">
+      {/* Background Texture */}
+      <div className="absolute inset-0 opacity-[0.05] pointer-events-none">
+        <img 
+          src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&q=80&w=2000" 
+          alt="Brick texture"
+          className="w-full h-full object-cover grayscale blur-md"
+          referrerPolicy="no-referrer"
+        />
+      </div>
+
       {/* Background Large Text */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none opacity-[0.03] whitespace-nowrap">
         <h2 className="text-[25vw] font-bold uppercase leading-none tracking-tighter">
@@ -37,11 +47,11 @@ export function ProductJourneySection() {
       <div className="container mx-auto px-6 md:px-16 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
-          <div className="max-w-xl">
+          <div className="max-w-xl relative z-20">
             <motion.div 
               key={`${currentItem.id}-header`}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               className="space-y-6"
             >
@@ -77,30 +87,34 @@ export function ProductJourneySection() {
                   FORMAT {currentItem.specs.module.replace(/x/g, '•')}
                 </div>
               </div>
-
-              <div className="flex flex-wrap gap-4 pt-8">
-                <button 
-                  onClick={() => document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="px-8 py-4 bg-[#22c55e] text-white font-bold text-xs uppercase tracking-widest rounded-full hover:bg-[#16a34a] transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(34,197,94,0.3)]"
-                >
-                  VIEW PRODUCTS
-                </button>
-                <button 
-                  onClick={() => setIsQuoteWizardOpen(true)}
-                  className="px-8 py-4 bg-transparent border border-white/20 text-white font-bold text-xs uppercase tracking-widest rounded-full hover:bg-white/5 transition-all flex items-center gap-2"
-                >
-                  <ShoppingCart size={16} />
-                  ADD TO CART
-                </button>
-              </div>
             </motion.div>
           </div>
 
-          {/* Right Content (3D Object space) */}
-          <div className="relative h-[400px] md:h-[600px] flex items-center justify-center">
-            {/* The 3D object will be positioned here via ProductScene */}
-          </div>
+          {/* Right Content (Empty space for centered 3D object) */}
+          <div className="hidden md:block h-[400px] md:h-[600px]"></div>
         </div>
+
+        {/* Centered Action Buttons */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="flex flex-col items-center gap-6 pt-16 relative z-20"
+        >
+          <button 
+            onClick={() => document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' })}
+            className="px-12 py-5 bg-[#22c55e] text-white font-bold text-sm uppercase tracking-[0.2em] rounded-full hover:bg-[#16a34a] transition-all hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(34,197,94,0.4)]"
+          >
+            VIEW PRODUCTS
+          </button>
+          <button 
+            onClick={() => setIsQuoteWizardOpen(true)}
+            className="text-white/40 hover:text-white font-bold text-[10px] uppercase tracking-widest transition-all flex items-center gap-2"
+          >
+            <ShoppingCart size={14} />
+            ADD TO CART
+          </button>
+        </motion.div>
 
         {/* Bottom Navigation */}
         <div className="absolute bottom-12 right-6 md:right-16 flex items-center gap-8">

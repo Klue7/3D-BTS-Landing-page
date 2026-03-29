@@ -56,7 +56,7 @@ export function PremiumShowcaseSection() {
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 }}
-          className="text-left max-w-[200px]"
+          className="text-center md:text-left max-w-[200px]"
         >
           <span className={`text-[10px] font-bold tracking-widest uppercase mb-2 block ${activeCategory === 'cladding-tiles' ? 'text-[#22c55e]' : 'text-[#eab308]'}`}>RANK 01</span>
           <h3 className="text-2xl font-bold text-white mb-2">Elite Tier</h3>
@@ -96,7 +96,7 @@ export function PremiumShowcaseSection() {
           initial={{ opacity: 0, x: 50 }}
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 }}
-          className="text-right max-w-[200px]"
+          className="text-center md:text-right max-w-[200px]"
         >
           <span className={`text-[10px] font-bold tracking-widest uppercase mb-2 block ${activeCategory === 'cladding-tiles' ? 'text-[#22c55e]' : 'text-[#eab308]'}`}>CERTIFIED</span>
           <h3 className="text-2xl font-bold text-white mb-2">Gold Standard</h3>

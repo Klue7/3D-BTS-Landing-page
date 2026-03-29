@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { NavigationBar } from './NavigationBar';
 import { HeroSection } from './HeroSection';
 import { MaterialStorySection } from './MaterialStorySection';
-import { RedRegisterSection } from './RedRegisterSection';
+import { PackagingDeliverySection } from './PackagingDeliverySection';
 import { TechnicalSection } from './TechnicalSection';
 import { ShowcaseSection } from './ShowcaseSection';
 import { VisualLabSection } from './VisualLabSection';
@@ -41,7 +41,7 @@ export function MainLayout() {
   }, []);
 
   return (
-    <div id="main-container" className="bg-[#0a0a0a] text-white min-h-screen font-sans selection:bg-[#22c55e] selection:text-white">
+    <div id="main-container" className="bg-[#050505] text-white min-h-screen font-sans selection:bg-[#22c55e] selection:text-white">
       <NavigationBar />
       <ProductScene />
       <QuoteWizard />
@@ -51,8 +51,8 @@ export function MainLayout() {
         <CatalogSection />
         <ProductJourneySection />
         <MaterialStorySection />
-        <RedRegisterSection />
         <TechnicalSection />
+        <PackagingDeliverySection />
         <ShowcaseSection />
         <PremiumShowcaseSection />
         <TopSellersSection />

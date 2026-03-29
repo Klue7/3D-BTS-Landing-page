@@ -182,7 +182,7 @@ export const productData = {
       }
     ]
   },
-  'clay-bricks': {
+  'bricks': {
     brand: "Brick Tile Shop",
     productName: "Zambezi Brick",
     category: "Solid Clay Bricks",
@@ -243,9 +243,93 @@ export const productData = {
       }
     ],
     catalog: [
-      { id: 'serengeti-brick', name: 'Serengeti Brick', category: 'Rich Aesthetic', subCategory: 'Earth-Led', color: '#8b4513', price: 'R 12.50', description: 'Full-depth structural brick with rich granular texture.', images: ["https://images.unsplash.com/photo-1517231426071-2940212f3bc3?q=80&w=800&auto=format&fit=crop"], specs: { module: '215mm x 65mm x 102.5mm', coverage: '60 bricks / sqm', selection: 'Premium Select', boxDetail: 'Incl VAT • Pallet of 500' } },
-      { id: 'kalahari-brick', name: 'Kalahari Brick', category: 'Modern', subCategory: 'Linear', color: '#d2b48c', price: 'R 13.50', description: 'Modern smooth finish in warm sandy tones.', images: ["https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&q=80&w=800"], specs: { module: '215mm x 65mm x 102.5mm', coverage: '60 bricks / sqm', selection: 'Premium Select', boxDetail: 'Incl VAT • Pallet of 500' } },
-      { id: 'nile-blue-brick', name: 'Nile Blue Brick', category: 'Contrast', subCategory: 'Cooler Tones', color: '#2f4f4f', price: 'R 14.50', description: 'Deep cool tones for structural masonry.', images: ["https://images.unsplash.com/photo-1590069230002-70cc884999f1?auto=format&fit=crop&q=80&w=800"], specs: { module: '215mm x 65mm x 102.5mm', coverage: '60 bricks / sqm', selection: 'Premium Select', boxDetail: 'Incl VAT • Pallet of 500' } }
+      { id: 'clay-stock-nfx', name: 'Clay Brick Yellow (NFX)', category: 'Clay Stock', subCategory: 'NFX', color: '#d2b48c', price: 'R 1.83', description: 'Non-facing extra hard brick, ideal for structural foundations and load-bearing walls that will be plastered.', images: ["https://images.unsplash.com/photo-1517231426071-2940212f3bc3?q=80&w=800&auto=format&fit=crop"], specs: { module: '222mm x 106mm x 73mm', coverage: '52 bricks / sqm', selection: 'Structural', boxDetail: 'Incl VAT • Pallet of 500' } },
+      { id: 'clay-stock-nfb', name: 'Clay Bricks Red (NFB)', category: 'Clay Stock', subCategory: 'NFB', color: '#8b4513', price: 'R 1.59', description: 'Non-facing plaster brick, standard for general masonry work where plastering is required.', images: ["https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&q=80&w=800"], specs: { module: '222mm x 106mm x 73mm', coverage: '52 bricks / sqm', selection: 'Structural', boxDetail: 'Incl VAT • Pallet of 500' } },
+      { id: 'face-brick-fba', name: 'Autumn Travertine (FBA)', category: 'Face Brick', subCategory: 'FBA', color: '#a0522d', price: 'R 8.45', description: 'Aesthetic face brick with rich tonal variations, perfect for exposed facades.', images: ["https://images.unsplash.com/photo-1590069230002-70cc884999f1?auto=format&fit=crop&q=80&w=800"], specs: { module: '222mm x 106mm x 73mm', coverage: '52 bricks / sqm', selection: 'Aesthetic', boxDetail: 'Incl VAT • Pallet of 500' } },
+      { id: 'face-brick-fbs', name: 'Satin Grey (FBS)', category: 'Face Brick', subCategory: 'FBS', color: '#708090', price: 'R 9.20', description: 'Standard face brick with uniform color and size for clean architectural lines.', images: ["https://images.unsplash.com/photo-1516533075015-a3838414c3ca?auto=format&fit=crop&q=80&w=800"], specs: { module: '222mm x 106mm x 73mm', coverage: '52 bricks / sqm', selection: 'Standard', boxDetail: 'Incl VAT • Pallet of 500' } },
+      { id: 'face-brick-fbx', name: 'Scarlet Travertine (FBX)', category: 'Face Brick', subCategory: 'FBX', color: '#b22222', price: 'R 11.99', description: 'Premium face brick with a travertine texture, offering high precision and elegant aesthetic for exposed facades.', images: ["https://images.unsplash.com/photo-1590069230002-70cc884999f1?auto=format&fit=crop&q=80&w=800"], specs: { module: '222mm x 106mm x 73mm', coverage: '52 bricks / sqm', selection: 'Premium Select', boxDetail: 'Incl VAT • Pallet of 500' } },
+      { id: 'cement-stock-nfb', name: 'Cement Stock Brick (NFB)', category: 'Cement Brick', subCategory: 'NFB', color: '#808080', price: 'R 1.39', description: 'Lightweight and economical cement brick, suitable for non-load-bearing walls.', images: ["https://images.unsplash.com/photo-1516533075015-a3838414c3ca?auto=format&fit=crop&q=80&w=800"], specs: { module: '222mm x 106mm x 73mm', coverage: '52 bricks / sqm', selection: 'Standard', boxDetail: 'Incl VAT • Pallet of 500' } }
+    ],
+    brickTypesGuide: [
+      {
+        type: "NFB (Non-Facing Brick)",
+        useCase: "General masonry where the wall will be plastered. Economical and reliable for standard construction.",
+        strength: "7 MPa - 10 MPa"
+      },
+      {
+        type: "NFX (Non-Facing Extra)",
+        useCase: "Used for foundations and load-bearing walls. Higher durability and resistance to dampness compared to NFP.",
+        strength: "14 MPa - 20 MPa"
+      },
+      {
+        type: "FBA (Face Brick Aesthetic)",
+        useCase: "Selected for its aesthetic tonal variation. Perfect for feature walls where a natural, varied look is desired.",
+        strength: "20 MPa+"
+      },
+      {
+        type: "FBS (Face Brick Standard)",
+        useCase: "Standard face brick with uniform color and size. Ideal for clean, consistent architectural facades.",
+        strength: "20 MPa+"
+      },
+      {
+        type: "FBX (Face Brick Extra)",
+        useCase: "Highest precision face brick. Used when minimal size variation and maximum aesthetic perfection are required.",
+        strength: "25 MPa+"
+      }
+    ],
+    cementBrickSpecs: {
+      categories: ['NFB', 'NFX', 'FBA', 'FBS', 'FBX'],
+      description: 'Our cement bricks are manufactured using high-pressure vibration technology, ensuring consistent density and dimensional accuracy. They are available in all standard classifications to meet specific engineering requirements.'
+    }
+  },
+  'paving': {
+    brand: "Brick Tile Shop",
+    productName: "Zambezi Paver",
+    category: "Solid Clay Paving",
+    primaryCta: "VIEW PAVERS",
+    materialStory: {
+      title: "SOLID CLAY PAVING",
+      subtitle: "DURABLE LANDSCAPING",
+      description: "Engineered for high-traffic exterior environments, our clay pavers offer exceptional durability and slip resistance. The rich, natural tones are fired into the clay, ensuring a finish that will never fade or degrade under UV exposure.",
+      metrics: [
+        { value: "100%", label: "NATURAL CLAY", description: "Fired at extreme temperatures for maximum density and hardness." },
+        { value: "50mm", label: "DEPTH", description: "Standard depth for heavy-duty pedestrian and vehicular paving." }
+      ]
+    },
+    technical: {
+      title: "TECHNICAL SPEC",
+      specs: [
+        { label: "LENGTH", value: "200mm", position: { x: -1, y: 1 } },
+        { label: "HEIGHT", value: "50mm", position: { x: -1, y: -1 } },
+        { label: "WIDTH", value: "100mm", position: { x: 1, y: 1 } },
+        { label: "FINISH", value: "Matte / Anti-Slip", position: { x: 1, y: -1 } }
+      ]
+    },
+    showcase: {
+      title: "LANDSCAPE\nARCHITECTURE",
+      description: "The Zambezi clay paver provides a premium, natural surface for high-end landscaping projects. Its robust profile and anti-slip finish make it ideal for driveways, terraces, and public plazas.",
+      image: "https://images.unsplash.com/photo-1516533075015-a3838414c3ca?auto=format&fit=crop&q=80&w=2070",
+      application: "Driveways & Terraces",
+      mortarJoint: "3mm Sand Joint"
+    },
+    topSellers: [
+      {
+        id: "zambezi-paver",
+        name: "ZAMBEZI PAVER",
+        price: "£38.00",
+        image: "https://images.unsplash.com/photo-1516533075015-a3838414c3ca?auto=format&fit=crop&q=80&w=800",
+        tag: "BEST SELLER"
+      },
+      {
+        id: "kalahari-paver",
+        name: "KALAHARI PAVER",
+        price: "£40.00",
+        image: "https://images.unsplash.com/photo-1590069230002-70cc884999f1?auto=format&fit=crop&q=80&w=800",
+        tag: "NEW"
+      }
+    ],
+    catalog: [
+      { id: 'serengeti-paver', name: 'Serengeti Paver', category: 'Rich Aesthetic', subCategory: 'Earth-Led', color: '#8b4513', price: 'R 389.00', description: 'Deep red clay pavers for premium landscaping.', images: ["https://images.unsplash.com/photo-1516533075015-a3838414c3ca?auto=format&fit=crop&q=80&w=800"], specs: { module: '200mm x 100mm x 50mm', coverage: '50 pavers / sqm', selection: 'Premium Select', boxDetail: 'Incl VAT • Pallet of 400' } }
     ]
   },
   visualLab: {

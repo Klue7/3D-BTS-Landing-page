@@ -36,7 +36,7 @@ export function CustomizeGallery() {
   const [selectedDesignForDetail, setSelectedDesignForDetail] = useState<any>(null);
 
   const categories = ['All', 'Residential', 'Commercial', 'Interior', 'Exterior'];
-  const products = ['All', 'Brick Tiles', 'Clay Bricks', 'Stone Cladding'];
+  const products = ['All', 'Cladding Tiles', 'Bricks', 'Paving'];
 
   // Combine mock data with real designs from context
   const mockGalleryItems = [
@@ -158,7 +158,8 @@ export function CustomizeGallery() {
   const allProducts = React.useMemo(() => {
     return [
       ...(productData['cladding-tiles'].catalog || []),
-      ...(productData['clay-bricks']?.catalog || [])
+      ...(productData['bricks']?.catalog || []),
+      ...(productData['paving']?.catalog || [])
     ];
   }, []);
 
@@ -177,7 +178,7 @@ export function CustomizeGallery() {
     const product = allProducts.find(p => p.name === item.product || p.id === item.product);
     if (product) {
       setSelectedCatalogItem(product);
-      const category = product.id.includes('brick') ? 'clay-bricks' : 'cladding-tiles';
+      const category = product.id.includes('brick') ? 'bricks' : product.id.includes('paver') ? 'paving' : 'cladding-tiles';
       setContextCategory(category);
       setIsCustomizeMode(true);
       navigate('/customize');
@@ -199,7 +200,7 @@ export function CustomizeGallery() {
     const product = allProducts.find(p => p.name === productName || p.id === productName);
     if (product) {
       setSelectedCatalogItem(product);
-      const category = product.id.includes('brick') ? 'clay-bricks' : 'cladding-tiles';
+      const category = product.id.includes('brick') ? 'bricks' : product.id.includes('paver') ? 'paving' : 'cladding-tiles';
       setContextCategory(category);
       navigate('/catalog');
     }

@@ -6,11 +6,20 @@ interface Design {
   roomType: string;
   notes: string;
   isPublic: boolean;
+  communityVisibility: 'public' | 'private' | 'unlisted';
+  publicSlug?: string;
+  sourceModule: 'studio' | 'projects' | 'marketing';
   isQuoteRequested: boolean;
   status: 'draft' | 'submitted' | 'published' | 'archived' | 'quote-requested';
   moderationStatus: 'pending' | 'approved' | 'rejected' | 'flagged' | 'none';
   createdAt: string;
+  publishedAt?: string;
   isFeatured?: boolean;
+  metrics?: {
+    views: number;
+    saves: number;
+    shares: number;
+  };
   author?: {
     name: string;
     id: string;
@@ -47,9 +56,18 @@ interface Project {
     designer?: string;
     decorator?: string;
   };
-  status: 'draft' | 'submitted' | 'approved' | 'rejected' | 'featured';
+  status: 'draft' | 'submitted' | 'approved' | 'rejected' | 'featured' | 'archived';
   isPublic: boolean;
+  communityVisibility: 'public' | 'private' | 'unlisted';
+  publicSlug?: string;
+  sourceModule: 'studio' | 'projects' | 'marketing';
   createdAt: string;
+  publishedAt?: string;
+  metrics?: {
+    views: number;
+    saves: number;
+    shares: number;
+  };
 }
 
 interface VisualLabState {
@@ -63,8 +81,8 @@ interface VisualLabState {
   setCurrentSection: (section: string) => void;
   isCustomizeMode: boolean;
   setIsCustomizeMode: (mode: boolean) => void;
-  activeCategory: 'cladding-tiles' | 'clay-bricks';
-  setActiveCategory: (category: 'cladding-tiles' | 'clay-bricks') => void;
+  activeCategory: 'cladding-tiles' | 'bricks' | 'paving';
+  setActiveCategory: (category: 'cladding-tiles' | 'bricks' | 'paving') => void;
   selectedCatalogItem: any | null;
   setSelectedCatalogItem: (item: any | null) => void;
   isQuoteWizardOpen: boolean;
@@ -79,6 +97,8 @@ interface VisualLabState {
   setUserRole: (role: 'customer' | 'employee' | null) => void;
   isViewingPortal: boolean;
   setIsViewingPortal: (viewing: boolean) => void;
+  isEstimating: boolean;
+  setIsEstimating: (estimating: boolean) => void;
   designs: Design[];
   addDesign: (design: Design) => void;
   updateDesign: (id: string, updates: Partial<Design>) => void;
@@ -87,6 +107,8 @@ interface VisualLabState {
   addProject: (project: Project) => void;
   updateProject: (id: string, updates: Partial<Project>) => void;
   deleteProject: (id: string) => void;
+  orders: any[];
+  quotes: any[];
 }
 
 const VisualLabContext = createContext<VisualLabState | undefined>(undefined);
@@ -97,7 +119,7 @@ export function VisualLabProvider({ children }: { children: React.ReactNode }) {
   const [activeLighting, setActiveLighting] = useState('daylight');
   const [currentSection, setCurrentSection] = useState('hero');
   const [isCustomizeMode, setIsCustomizeMode] = useState(false);
-  const [activeCategory, setActiveCategory] = useState<'cladding-tiles' | 'clay-bricks'>('cladding-tiles');
+  const [activeCategory, setActiveCategory] = useState<'cladding-tiles' | 'bricks' | 'paving'>('cladding-tiles');
   const [selectedCatalogItem, setSelectedCatalogItem] = useState<any | null>(null);
   const [isQuoteWizardOpen, setIsQuoteWizardOpen] = useState(false);
   const [quoteQuantity, setQuoteQuantity] = useState(1);
@@ -105,6 +127,7 @@ export function VisualLabProvider({ children }: { children: React.ReactNode }) {
   const [isLoginPageOpen, setIsLoginPageOpen] = useState(false);
   const [userRole, setUserRole] = useState<'customer' | 'employee' | null>(null);
   const [isViewingPortal, setIsViewingPortal] = useState(false);
+  const [isEstimating, setIsEstimating] = useState(false);
   const [designs, setDesigns] = useState<Design[]>([
       {
         id: 'd1',
@@ -112,11 +135,16 @@ export function VisualLabProvider({ children }: { children: React.ReactNode }) {
         roomType: 'Interior',
         notes: 'Industrial feel with exposed brick.',
         isPublic: true,
+        communityVisibility: 'public',
+        publicSlug: 'modern-loft-kitchen-d1',
+        sourceModule: 'studio',
         isQuoteRequested: false,
         status: 'published',
         moderationStatus: 'approved',
         isFeatured: true,
         createdAt: new Date().toISOString(),
+        publishedAt: new Date().toISOString(),
+        metrics: { views: 1240, saves: 45, shares: 12 },
         author: { name: 'Alex Rivera', id: 'u1' },
         settings: {
           grout: 'dark',
@@ -138,6 +166,9 @@ export function VisualLabProvider({ children }: { children: React.ReactNode }) {
         roomType: 'Exterior',
         notes: 'Light and airy for a beach house.',
         isPublic: true,
+        communityVisibility: 'public',
+        publicSlug: 'coastal-patio-concept-d2',
+        sourceModule: 'studio',
         isQuoteRequested: true,
         status: 'submitted',
         moderationStatus: 'pending',
@@ -174,7 +205,12 @@ export function VisualLabProvider({ children }: { children: React.ReactNode }) {
       attribution: { architect: 'Studio Linear', designer: 'Marcus Thorne' },
       status: 'featured',
       isPublic: true,
-      createdAt: new Date().toISOString()
+      communityVisibility: 'public',
+      publicSlug: 'the-glass-house-residence-pr1',
+      sourceModule: 'projects',
+      createdAt: new Date().toISOString(),
+      publishedAt: new Date().toISOString(),
+      metrics: { views: 3420, saves: 128, shares: 56 }
     },
     {
       id: 'pr2',
@@ -191,6 +227,9 @@ export function VisualLabProvider({ children }: { children: React.ReactNode }) {
       attribution: { designer: 'Elena Rossi' },
       status: 'approved',
       isPublic: true,
+      communityVisibility: 'public',
+      publicSlug: 'urban-office-hq-pr2',
+      sourceModule: 'projects',
       createdAt: new Date().toISOString()
     },
     {
@@ -208,6 +247,9 @@ export function VisualLabProvider({ children }: { children: React.ReactNode }) {
       attribution: { architect: 'OVD Architects', designer: 'Julian Venter' },
       status: 'approved',
       isPublic: true,
+      communityVisibility: 'public',
+      publicSlug: 'the-pavilion-hotel-pr3',
+      sourceModule: 'projects',
       createdAt: new Date().toISOString()
     },
     {
@@ -225,8 +267,21 @@ export function VisualLabProvider({ children }: { children: React.ReactNode }) {
       attribution: { architect: 'Bauhaus Modern' },
       status: 'approved',
       isPublic: true,
+      communityVisibility: 'public',
+      publicSlug: 'civic-plaza-library-pr4',
+      sourceModule: 'projects',
       createdAt: new Date().toISOString()
     }
+  ]);
+
+  const [orders] = useState([
+    { id: 'ORD-7291', date: 'Mar 12, 2026', status: 'In Production', total: '$4,250.00', items: 2, tracking: 'BTS-TRK-9921' },
+    { id: 'ORD-6102', date: 'Feb 28, 2026', status: 'Delivered', total: '$1,820.00', items: 1, tracking: 'BTS-TRK-8810' },
+  ]);
+
+  const [quotes] = useState([
+    { id: 'QTE-4412', date: 'Mar 25, 2026', status: 'Pending Review', total: '$3,100.00', items: 3 },
+    { id: 'QTE-3391', date: 'Mar 18, 2026', status: 'Expired', total: '$1,200.00', items: 1 },
   ]);
 
   const addDesign = (design: Design) => setDesigns(prev => [design, ...prev]);
@@ -256,8 +311,10 @@ export function VisualLabProvider({ children }: { children: React.ReactNode }) {
       isLoginPageOpen, setIsLoginPageOpen,
       userRole, setUserRole,
       isViewingPortal, setIsViewingPortal,
+      isEstimating, setIsEstimating,
       designs, addDesign, updateDesign, deleteDesign,
-      projects, addProject, updateProject, deleteProject
+      projects, addProject, updateProject, deleteProject,
+      orders, quotes
     }}>
       {children}
     </VisualLabContext.Provider>
