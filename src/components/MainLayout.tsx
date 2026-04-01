@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { NavigationBar } from './NavigationBar';
 import { HeroSection } from './HeroSection';
 import { MaterialStorySection } from './MaterialStorySection';
-import { PackagingDeliverySection } from './PackagingDeliverySection';
+import { DeliveryProcessSection } from './DeliveryProcessSection';
 import { TechnicalSection } from './TechnicalSection';
 import { ShowcaseSection } from './ShowcaseSection';
 import { VisualLabSection } from './VisualLabSection';
@@ -51,8 +51,8 @@ export function MainLayout() {
         <CatalogSection />
         <ProductJourneySection />
         <MaterialStorySection />
+        <DeliveryProcessSection />
         <TechnicalSection />
-        <PackagingDeliverySection />
         <ShowcaseSection />
         <PremiumShowcaseSection />
         <TopSellersSection />

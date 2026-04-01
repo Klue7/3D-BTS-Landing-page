@@ -41,7 +41,7 @@ export function NavigationBar() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 w-full z-50 px-6 md:px-16 py-6 flex justify-between items-center mix-blend-difference">
+      <nav className="absolute top-0 left-0 w-full z-50 px-6 md:px-16 py-6 flex justify-between items-center mix-blend-difference">
         {/* Logo */}
         <Link 
           to="/"

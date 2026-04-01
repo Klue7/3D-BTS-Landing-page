@@ -44,21 +44,30 @@ function CategoryMesh({ dimensions, color, type }: { dimensions: any, color: str
 }
 
 function Category3D({ type, category, color }: { type: string, category: string, color?: string }) {
-  const dimensions = useMemo(() => {
-    switch(category) {
-      case 'bricks': return [1.6, 0.6, 0.6];
-      case 'paving': return [1.2, 1.2, 0.3];
-      default: return [1.6, 0.6, 0.1];
-    }
-  }, [category]);
-
+  const isPaving = category === 'paving';
+  const isBricks = category === 'bricks';
+  
   return (
-    <Canvas shadows dpr={[1, 2]} camera={{ position: [0, 0, 3], fov: 35 }} className="h-32 w-full">
-      <ambientLight intensity={0.5} />
-      <pointLight position={[10, 10, 10]} intensity={1} />
-      <CategoryMesh dimensions={dimensions} color={color || "#8B4513"} type={type} />
-      <Environment preset="city" />
-    </Canvas>
+    <div className="h-32 w-full flex items-center justify-center perspective-[1000px]">
+      <motion.div 
+        animate={{ rotateY: 360 }}
+        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        className="relative transform-style-3d"
+        style={{
+          width: isPaving ? '80px' : '100px',
+          height: isPaving ? '80px' : '40px',
+          backgroundColor: color || '#8B4513',
+          boxShadow: 'inset 0 0 20px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.5)',
+          borderRadius: '4px',
+          transform: 'rotateX(20deg) rotateZ(-10deg)'
+        }}
+      >
+        {/* Pseudo 3D effect */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-[4px]" />
+        <div className="absolute -bottom-[10px] left-[5px] right-[-5px] h-[10px] rounded-b-[4px] brightness-50" style={{ backgroundColor: color || '#8B4513', transform: 'skewX(45deg)' }} />
+        <div className="absolute -right-[10px] top-[5px] bottom-[-5px] w-[10px] rounded-r-[4px] brightness-75" style={{ backgroundColor: color || '#8B4513', transform: 'skewY(45deg)' }} />
+      </motion.div>
+    </div>
   );
 }
 
@@ -102,15 +111,29 @@ function CatalogTile({ item, onSelect, isAnySelected }: {
   onSelect: (item: any) => void,
   isAnySelected: boolean
 }) {
+  const { activeCategory } = useVisualLab();
+  const isPaving = activeCategory === 'paving';
+
   return (
     <div className="group relative h-40 w-full flex flex-col items-center justify-center cursor-pointer" onClick={() => onSelect(item)}>
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <Canvas shadows dpr={[1, 2]} camera={{ position: [0, 0, 3], fov: 35 }}>
-          <ambientLight intensity={0.5} />
-          <pointLight position={[10, 10, 10]} intensity={1} />
-          <TileMesh item={item} isAnySelected={isAnySelected} />
-          <Environment preset="city" />
-        </Canvas>
+      <div className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center perspective-[1000px]">
+        <motion.div 
+          animate={!isAnySelected ? { rotateY: [0, 360] } : {}}
+          transition={{ duration: 15 + Math.random() * 10, repeat: Infinity, ease: "linear" }}
+          className="relative transform-style-3d opacity-80 group-hover:opacity-100 transition-opacity"
+          style={{
+            width: isPaving ? '60px' : '80px',
+            height: isPaving ? '60px' : '30px',
+            backgroundColor: item.color,
+            boxShadow: `inset 0 0 10px rgba(0,0,0,0.5), 0 10px 20px ${item.color}40`,
+            borderRadius: '2px',
+            transform: 'rotateX(20deg) rotateZ(-10deg)'
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent rounded-[2px]" />
+          <div className="absolute -bottom-[6px] left-[3px] right-[-3px] h-[6px] rounded-b-[2px] brightness-50" style={{ backgroundColor: item.color, transform: 'skewX(45deg)' }} />
+          <div className="absolute -right-[6px] top-[3px] bottom-[-3px] w-[6px] rounded-r-[2px] brightness-75" style={{ backgroundColor: item.color, transform: 'skewY(45deg)' }} />
+        </motion.div>
       </div>
       <div className="relative z-10 mt-24 text-center">
         <span className="text-[10px] font-mono uppercase tracking-widest text-white/40 group-hover:text-white transition-colors">
@@ -280,7 +303,9 @@ export function CatalogSection() {
                           </mesh>
                         </Float>
                       </PresentationControls>
-                      <Environment preset="city" />
+                      <ambientLight intensity={0.5} />
+                      <directionalLight position={[5, 5, 5]} intensity={1.5} castShadow />
+                      <directionalLight position={[-5, -5, -5]} intensity={0.5} />
                       <ContactShadows position={[0, -1.5, 0]} opacity={0.4} scale={10} blur={2} far={4.5} />
                     </Canvas>
                   </div>

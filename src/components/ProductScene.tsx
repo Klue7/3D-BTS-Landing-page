@@ -1,9 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Environment, PerspectiveCamera } from '@react-three/drei';
 import * as THREE from 'three';
 import { BrickTile } from './BrickTile';
-import { CardboardBox } from './CardboardBox';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useVisualLab } from './VisualLabContext';
@@ -14,7 +13,6 @@ function AnimatedBrick() {
   const wrapperRef = useRef<THREE.Group>(null);
   const brickRef = useRef<THREE.Group>(null);
   const interactiveRef = useRef<THREE.Group>(null);
-  const boxRef = useRef<any>(null);
 
   const { setCurrentSection, isCustomizeMode, isEstimating } = useVisualLab();
   const currentSection = useRef('hero');
@@ -43,10 +41,9 @@ function AnimatedBrick() {
   });
 
   useEffect(() => {
-    if (!wrapperRef.current || !brickRef.current || !boxRef.current?.group) return;
+    if (!wrapperRef.current || !brickRef.current) return;
     const wrapper = wrapperRef.current;
     const brick = brickRef.current;
-    const box = boxRef.current.group;
 
     let mm = gsap.matchMedia();
 
@@ -125,24 +122,20 @@ function AnimatedBrick() {
         : { position: { x: 0, y: 0, z: 0 }, rotation: { x: 0.1, y: 0, z: 0 }, scale: { x: 1.0, y: 1.0, z: 1.0 } };
 
       const materialPreset = isDesktop 
-        ? { position: { x: 1.8, y: 0, z: 1.5 }, rotation: { x: 0.4, y: -0.8, z: 0.2 }, scale: { x: 2.2, y: 2.2, z: 2.2 } }
-        : { position: { x: 0, y: -1.8, z: 1.2 }, rotation: { x: 0.4, y: -0.8, z: 0.2 }, scale: { x: 1.8, y: 1.8, z: 1.8 } };
+        ? { position: { x: 1.8, y: 0, z: 1.5 }, rotation: { x: 0.4, y: -0.8, z: 0.2 }, scale: { x: 1.65, y: 1.65, z: 1.65 } }
+        : { position: { x: 0, y: -1.8, z: 1.2 }, rotation: { x: 0.4, y: -0.8, z: 0.2 }, scale: { x: 1.35, y: 1.35, z: 1.35 } };
 
-      const packagingDeliveryPreset = isDesktop
-        ? { position: { x: -1.4, y: -0.5, z: 0 }, rotation: { x: Math.PI / 2, y: 0, z: 0 }, scale: { x: 0.15, y: 0.15, z: 0.15 } }
-        : { position: { x: 0, y: -1.2, z: 0 }, rotation: { x: Math.PI / 2, y: 0, z: 0 }, scale: { x: 0.12, y: 0.12, z: 0.12 } };
-
-      const packagingDeliveryTilePreset = isDesktop
-        ? { position: { x: 2.8, y: 0.5, z: 0.5 }, rotation: { x: 0.2, y: -0.4, z: 0 }, scale: { x: 0.45, y: 0.45, z: 0.45 } }
-        : { position: { x: 0, y: 1.5, z: 0.5 }, rotation: { x: 0.2, y: 0.6, z: -0.1 }, scale: { x: 0.35, y: 0.35, z: 0.35 } };
+      const deliveryPreset = isDesktop
+        ? { position: { x: -1.8, y: 0, z: 1.5 }, rotation: { x: 0.4, y: 0.8, z: -0.2 }, scale: { x: 1.65, y: 1.65, z: 1.65 } }
+        : { position: { x: 0, y: 1.8, z: 1.2 }, rotation: { x: 0.4, y: 0.8, z: -0.2 }, scale: { x: 1.35, y: 1.35, z: 1.35 } };
 
       const technicalPreset = isDesktop 
         ? { position: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } }
         : { position: { x: 0, y: 0, z: 0 }, rotation: { x: 0, y: 0, z: 0 }, scale: { x: 0.9, y: 0.9, z: 0.9 } };
 
       const showcasePreset = isDesktop 
-        ? { position: { x: 0.2, y: -1.5, z: 1.5 }, rotation: { x: 0.2, y: -0.4, z: 0 }, scale: { x: 1.2, y: 1.2, z: 1.2 } }
-        : { position: { x: 0, y: -1.5, z: 1 }, rotation: { x: 0.2, y: 0.6, z: -0.1 }, scale: { x: 1.2, y: 1.2, z: 1.2 } };
+        ? { position: { x: 0, y: -0.8, z: 1.5 }, rotation: { x: 0.2, y: -0.4, z: 0 }, scale: { x: 1.5, y: 1.5, z: 1.5 } }
+        : { position: { x: 0, y: -0.5, z: 1 }, rotation: { x: 0.2, y: 0.6, z: -0.1 }, scale: { x: 1.2, y: 1.2, z: 1.2 } };
 
       const visualLabPreset = isDesktop 
         ? { position: { x: 3, y: -1.5, z: 0 }, rotation: { x: 0.2, y: -0.4, z: 0 }, scale: { x: 0.6, y: 0.6, z: 0.6 } }
@@ -152,19 +145,10 @@ function AnimatedBrick() {
         ? { position: { x: 0, y: 0, z: 2 }, rotation: { x: 0.5, y: 0, z: 0 }, scale: { x: 1.5, y: 1.5, z: 1.5 } }
         : { position: { x: 0, y: 0, z: 1.5 }, rotation: { x: 0.5, y: 0, z: 0 }, scale: { x: 1.2, y: 1.2, z: 1.2 } };
 
-      // Box animation presets
-      const boxHidden = isDesktop
-        ? { position: { x: -1.4, y: -5, z: 0 }, rotation: { x: 0, y: -0.5, z: 0 }, scale: { x: 0, y: 0, z: 0 } }
-        : { position: { x: 0, y: -5, z: 0 }, rotation: { x: 0, y: -0.5, z: 0 }, scale: { x: 0, y: 0, z: 0 } };
-      const boxVisible = isDesktop
-        ? { position: { x: -1.4, y: -0.5, z: 0 }, rotation: { x: 0.2, y: -0.5, z: 0 }, scale: { x: 0.35, y: 0.35, z: 0.35 } }
-        : { position: { x: 0, y: -1.2, z: 0 }, rotation: { x: 0.2, y: -0.5, z: 0 }, scale: { x: 0.25, y: 0.25, z: 0.25 } };
-
       if (isCustomizeMode) {
         gsap.to(brick.position, { ...visualLabPreset.position, duration: 1.2, ease: "power3.inOut" });
         gsap.to(brick.rotation, { ...visualLabPreset.rotation, duration: 1.2, ease: "power3.inOut" });
         gsap.to(brick.scale, { ...visualLabPreset.scale, duration: 1.2, ease: "power3.inOut" });
-        gsap.to(box.scale, { x: 0, y: 0, z: 0, duration: 0.5 });
         setCurrentSection('visual-lab');
         heroRotationRef.current?.pause();
         heroFloat.pause();
@@ -175,9 +159,6 @@ function AnimatedBrick() {
       gsap.to(brick.position, { ...heroPreset.position, duration: 1, ease: "power2.out" });
       gsap.to(brick.rotation, { ...heroPreset.rotation, duration: 1, ease: "power2.out" });
       gsap.to(brick.scale, { ...heroPreset.scale, duration: 1, ease: "power2.out" });
-      gsap.set(box.position, boxHidden.position);
-      gsap.set(box.rotation, boxHidden.rotation);
-      gsap.set(box.scale, boxHidden.scale);
 
       // 1. Hero -> Catalog
       const tl0 = gsap.timeline({
@@ -221,120 +202,49 @@ function AnimatedBrick() {
       tl1.to(brick.rotation, { ...materialPreset.rotation, ease: "power2.inOut", immediateRender: false }, 0);
       tl1.to(brick.scale, { ...materialPreset.scale, ease: "power2.inOut", immediateRender: false }, 0);
 
-      // 1.7 Material Story -> Technical Spotlight
-      const tl1_5 = gsap.timeline({
+      // 1.8 Material Story -> Delivery Process
+      const tl1_8 = gsap.timeline({
+        scrollTrigger: {
+          trigger: "#delivery-process",
+          start: "top bottom",
+          end: "center center",
+          scrub: 1,
+          onUpdate: getUpdateHandler('material', 'delivery')
+        }
+      });
+      tl1_8.to(brick.position, { ...deliveryPreset.position, ease: "power2.inOut", immediateRender: false }, 0);
+      tl1_8.to(brick.rotation, { ...deliveryPreset.rotation, ease: "power2.inOut", immediateRender: false }, 0);
+      tl1_8.to(brick.scale, { ...deliveryPreset.scale, ease: "power2.inOut", immediateRender: false }, 0);
+
+      // 1.9 Delivery Process -> Technical Spotlight
+      const tl1_9 = gsap.timeline({
         scrollTrigger: {
           trigger: "#technical-spotlight",
           start: "top bottom",
           end: "center center",
           scrub: 1,
-          onUpdate: getUpdateHandler('material', 'technical')
+          onUpdate: getUpdateHandler('delivery', 'technical')
         }
       });
-      tl1_5.to(brick.position, { ...technicalPreset.position, ease: "power2.inOut", immediateRender: false }, 0);
-      tl1_5.to(brick.rotation, { ...technicalPreset.rotation, ease: "power2.inOut", immediateRender: false }, 0);
-      tl1_5.to(brick.scale, { ...technicalPreset.scale, ease: "power2.inOut", immediateRender: false }, 0);
+      tl1_9.to(brick.position, { ...technicalPreset.position, ease: "power2.inOut", immediateRender: false }, 0);
+      tl1_9.to(brick.rotation, { ...technicalPreset.rotation, ease: "power2.inOut", immediateRender: false }, 0);
+      tl1_9.to(brick.scale, { ...technicalPreset.scale, ease: "power2.inOut", immediateRender: false }, 0);
 
-      // 2. Technical Spotlight -> Packaging Delivery Bridge
+      // 2. Technical Spotlight -> Showcase
       const tl2 = gsap.timeline({
-        scrollTrigger: {
-          trigger: "#technical-spotlight",
-          start: "top top",
-          end: "+=100%",
-          scrub: 1,
-          onUpdate: getUpdateHandler('technical', 'packaging-delivery')
-        }
-      });
-
-      // Stage 2: Packaging Transition
-      // First 50%: Tile shrinks and stages for entry
-      tl2.to(brick.position, { 
-        x: packagingDeliveryPreset.position.x, 
-        y: packagingDeliveryPreset.position.y + 1.5, // Higher staging for more believable drop
-        z: packagingDeliveryPreset.position.z, 
-        ease: "power2.inOut", 
-        immediateRender: false,
-        duration: 0.5
-      }, 0);
-      tl2.to(brick.rotation, { ...packagingDeliveryPreset.rotation, ease: "power2.inOut", immediateRender: false, duration: 0.5 }, 0);
-      tl2.to(brick.scale, { ...packagingDeliveryPreset.scale, ease: "power2.inOut", immediateRender: false, duration: 0.5 }, 0);
-
-      // Box emerges from below earlier (starts at 0.2) to eliminate dead zone
-      tl2.fromTo(box.position, 
-        { x: boxVisible.position.x, y: -6, z: boxVisible.position.z },
-        { x: boxVisible.position.x, y: boxVisible.position.y, z: boxVisible.position.z, ease: "power3.out", immediateRender: false, duration: 0.6 },
-        0.2
-      );
-      tl2.fromTo(box.scale, 
-        { x: 0, y: 0, z: 0 },
-        { x: boxVisible.scale.x, y: boxVisible.scale.y, z: boxVisible.scale.z, ease: "back.out(1.2)", immediateRender: false, duration: 0.6 },
-        0.2
-      );
-
-      // Second 50%: Tile enters the box fully with gravitational ease (starts at 0.65)
-      tl2.to(brick.position, { y: packagingDeliveryPreset.position.y, ease: "power2.in", immediateRender: false, duration: 0.35 }, 0.65);
-
-      // Close the box flaps as the tile enters (starts at 0.75)
-      if (boxRef.current) {
-        tl2.to(boxRef.current.flapLeft.rotation, { z: Math.PI * 0.7, ease: "power1.inOut", immediateRender: false, duration: 0.25 }, 0.75);
-        tl2.to(boxRef.current.flapRight.rotation, { z: -Math.PI * 0.7, ease: "power1.inOut", immediateRender: false, duration: 0.25 }, 0.75);
-        tl2.to(boxRef.current.flapBack.rotation, { x: -Math.PI * 0.7, ease: "power1.inOut", immediateRender: false, duration: 0.25 }, 0.85);
-        tl2.to(boxRef.current.flapFront.rotation, { x: Math.PI * 0.7, ease: "power1.inOut", immediateRender: false, duration: 0.25 }, 0.85);
-      }
-
-      // 2.5 Packaging Delivery Pinned Phase
-      const tl2_pinned = gsap.timeline({
-        scrollTrigger: {
-          trigger: "#packaging-delivery",
-          start: "top top",
-          end: "+=150%",
-          scrub: 1,
-        }
-      });
-
-      // Open the box slightly (syncs with title emerging, 0 to 0.8)
-      if (boxRef.current) {
-        tl2_pinned.to(boxRef.current.flapFront.rotation, { x: Math.PI * 0.4, ease: "power2.out", immediateRender: false, duration: 0.8 }, 0);
-        tl2_pinned.to(boxRef.current.flapBack.rotation, { x: -Math.PI * 0.4, ease: "power2.out", immediateRender: false, duration: 0.8 }, 0);
-        tl2_pinned.to(boxRef.current.flapRight.rotation, { z: -Math.PI * 0.4, ease: "power2.out", immediateRender: false, duration: 0.8 }, 0);
-        tl2_pinned.to(boxRef.current.flapLeft.rotation, { z: Math.PI * 0.4, ease: "power2.out", immediateRender: false, duration: 0.8 }, 0);
-      }
-
-      // Hold briefly (0.8 to 1.0)
-      tl2_pinned.to({}, { duration: 0.2 }, 0.8);
-
-      // Tile comes out and moves to the right side (syncs with title release, 1.0 to 2.2)
-      tl2_pinned.to(brick.position, { ...packagingDeliveryTilePreset.position, ease: "power4.inOut", immediateRender: false, duration: 1.2 }, 1.0);
-      tl2_pinned.to(brick.rotation, { ...packagingDeliveryTilePreset.rotation, ease: "power4.inOut", immediateRender: false, duration: 1.2 }, 1.0);
-      tl2_pinned.to(brick.scale, { ...packagingDeliveryTilePreset.scale, ease: "power4.inOut", immediateRender: false, duration: 1.2 }, 1.0);
-
-      // 3. Packaging Delivery -> Showcase
-      const tl3 = gsap.timeline({
         scrollTrigger: {
           trigger: "#showcase",
           start: "top bottom",
           end: "center center",
           scrub: 1,
-          onUpdate: getUpdateHandler('packaging-delivery', 'showcase')
+          onUpdate: getUpdateHandler('technical', 'showcase')
         }
       });
       
-      // Open the box quickly
-      if (boxRef.current) {
-        tl3.to(boxRef.current.flapFront.rotation, { x: 0, ease: "power2.out", immediateRender: false, duration: 0.2 }, 0);
-        tl3.to(boxRef.current.flapBack.rotation, { x: 0, ease: "power2.out", immediateRender: false, duration: 0.2 }, 0);
-        tl3.to(boxRef.current.flapRight.rotation, { z: 0, ease: "power2.out", immediateRender: false, duration: 0.2 }, 0.1);
-        tl3.to(boxRef.current.flapLeft.rotation, { z: 0, ease: "power2.out", immediateRender: false, duration: 0.2 }, 0.1);
-      }
-
-      // Hide the box
-      tl3.to(box.position, { ...boxHidden.position, ease: "power2.in", immediateRender: false }, 0.2);
-      tl3.to(box.scale, { ...boxHidden.scale, ease: "power2.in", immediateRender: false }, 0.2);
-      
       // Tile comes out and scales up
-      tl3.to(brick.position, { ...showcasePreset.position, ease: "power2.inOut", immediateRender: false }, 0.2);
-      tl3.to(brick.rotation, { ...showcasePreset.rotation, ease: "power2.inOut", immediateRender: false }, 0.2);
-      tl3.to(brick.scale, { ...showcasePreset.scale, ease: "power2.inOut", immediateRender: false }, 0.2);
+      tl2.to(brick.position, { ...showcasePreset.position, ease: "power2.inOut", immediateRender: false }, 0);
+      tl2.to(brick.rotation, { ...showcasePreset.rotation, ease: "power2.inOut", immediateRender: false }, 0);
+      tl2.to(brick.scale, { ...showcasePreset.scale, ease: "power2.inOut", immediateRender: false }, 0);
 
       // 4. Top Sellers -> Footer
       const tl4 = gsap.timeline({
@@ -364,13 +274,8 @@ function AnimatedBrick() {
     
     const updatePose = () => {
       const isMobile = window.innerWidth < 768;
-      const box = boxRef.current?.group;
       
       if (currentSection.current === 'technical') {
-        if (box) {
-          gsap.to(box.scale, { x: 0, y: 0, z: 0, duration: 0.8, ease: "power2.out" });
-        }
-
         if (isEstimating) {
           // Lateral Flow Pose: Shifted left with parallax
           gsap.to(brick.position, { 
@@ -404,8 +309,14 @@ function AnimatedBrick() {
     };
 
     updatePose();
-    window.addEventListener('resize', updatePose);
-    return () => window.removeEventListener('resize', updatePose);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', updatePose);
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', updatePose);
+      }
+    };
   }, [isEstimating]);
 
   const handlePointerOver = (e: any) => {
@@ -469,7 +380,6 @@ function AnimatedBrick() {
 
   return (
     <group ref={wrapperRef}>
-      <CardboardBox ref={boxRef} />
       <group ref={brickRef}>
         <group 
           ref={interactiveRef}
@@ -545,14 +455,14 @@ function LightingController() {
         targetFillColor.current.set("#f0f8ff");
         targetRim1Intensity = 1.0;
         targetRim2Intensity = 0.5;
-      } else if (currentSection === 'technical') {
-        targetKeyIntensity = 3.5;
+      } else if (currentSection === 'delivery') {
+        targetKeyIntensity = 4.0;
         targetKeyColor.current.set("#ffffff");
-        targetFillIntensity = 1.5;
+        targetFillIntensity = 1.0;
         targetFillColor.current.set("#f0f8ff");
-        targetRim1Intensity = 2.0;
+        targetRim1Intensity = 3.0;
         targetRim2Intensity = 1.0;
-      } else if (currentSection === 'packaging-delivery') {
+      } else if (currentSection === 'technical') {
         targetKeyIntensity = 3.5;
         targetKeyColor.current.set("#ffffff");
         targetFillIntensity = 1.5;
@@ -593,15 +503,15 @@ export function ProductScene() {
   const cameraRef = useRef<any>(null);
 
   return (
-    <div className="fixed inset-0 z-10">
+    <div className="fixed inset-0 z-10 pointer-events-none">
       <Canvas shadows dpr={[1, 2]} eventSource={document.getElementById('root') || undefined} eventPrefix="client">
-        <PerspectiveCamera ref={cameraRef} makeDefault position={[0, 0, 5]} fov={45} />
-        
-        <LightingController />
-        
-        <AnimatedBrick />
-
-        <Environment preset="city" />
+        <Suspense fallback={null}>
+          <PerspectiveCamera ref={cameraRef} makeDefault position={[0, 0, 5]} fov={45} />
+          
+          <LightingController />
+          
+          <AnimatedBrick />
+        </Suspense>
       </Canvas>
     </div>
   );

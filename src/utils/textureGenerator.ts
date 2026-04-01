@@ -29,6 +29,7 @@ export function createBrickTexture() {
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
+  texture.needsUpdate = true;
   return texture;
 }
 
@@ -57,6 +58,7 @@ export function createBumpTexture() {
   context.putImageData(imageData, 0, 0);
 
   const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
   return texture;
 }
 
@@ -89,6 +91,7 @@ export function createPavingTexture() {
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
+  texture.needsUpdate = true;
   return texture;
 }
 
@@ -116,5 +119,6 @@ export function createPavingBumpTexture() {
   context.putImageData(imageData, 0, 0);
 
   const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
   return texture;
 }
